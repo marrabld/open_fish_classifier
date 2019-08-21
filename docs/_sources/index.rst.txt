@@ -1,0 +1,37 @@
+.. docs documentation master file, created by
+   sphinx-quickstart on Fri Aug  3 11:19:19 2018.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to AIMS BRUVS fish detection tool documentation!
+========================================================
+
+.. toctree::
+   :maxdepth: 4
+   :caption: Contents
+
+.. automodule:: manage
+   :members: 
+
+
+.. automodule:: src.tools
+   :members:
+
+.. automodule:: src.tools.pre_processing_tools
+   :members:
+
+.. autoclass:: YoloTools
+   :members:	       
+      
+.. automodule:: src.tools.helper_functions
+   :members:
+
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

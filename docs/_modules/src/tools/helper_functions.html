@@ -1,0 +1,149 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>src.tools.helper_functions &#8212; BRUVS Fish Locator 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.tools.helper_functions</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Pool</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<div class="viewcode-block" id="stupid_parallel"><a class="viewcode-back" href="../../../index.html#src.tools.helper_functions.stupid_parallel">[docs]</a><span class="k">def</span> <span class="nf">stupid_parallel</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">nprocesses</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stolen from here https://valentinoetal.wordpress.com/2014/06/10/stupid-parallel-pseudo-decorator-in-python/</span>
+
+<span class="sd">    Works similar to a decorator to paralelize &quot;stupidly parallel&quot;</span>
+<span class="sd">    problems. Decorators and multiprocessing don&#39;t play nicely because</span>
+<span class="sd">    of naming issues.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    </span>
+<span class="sd">    function : the function that will be parallelized. The FIRST</span>
+<span class="sd">        argument is the one to be iterated on (in parallel). The other</span>
+<span class="sd">        arguments are the same in all the parallel runs of the function</span>
+<span class="sd">        (they can be named or unnamedarguments).</span>
+<span class="sd">    nprocesses : int, the number of processes to run. Default is None.</span>
+<span class="sd">        It is passed to multiprocessing.Pool (see that for details).</span>
+
+<span class="sd">    Output</span>
+<span class="sd">    </span>
+<span class="sd">    A paralelized function. DO NOT NAME IT THE SAME AS THE INPUT</span>
+<span class="sd">    FUNCTION.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    </span>
+<span class="sd">   </span>
+<span class="sd">    def _square_and_offset(value, offset=0):</span>
+<span class="sd">        return value**2 + offset</span>
+
+<span class="sd">    parallel_square_and_offset = stupid_parallel(_square_and_offset,</span>
+<span class="sd">                                                 nprocesses=5)</span>
+<span class="sd">    print square_and_offset_parallel(range(10), offset=3)</span>
+<span class="sd">    &gt; [3, 4, 7, 12, 19, 28, 39, 52, 67, 84]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="n">iterable_values</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">nprocesses</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span><span class="p">,</span>
+                                    <span class="n">kwds</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">iterable_values</span><span class="p">]</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">apply</span></div>
+
+
+<span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">timed</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="n">ts</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="n">te</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> (</span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">) </span><span class="si">%2.2f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> \
+              <span class="p">(</span><span class="n">method</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kw</span><span class="p">,</span> <span class="n">te</span> <span class="o">-</span> <span class="n">ts</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">timed</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Curtin University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

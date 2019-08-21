@@ -1,0 +1,274 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Welcome to AIMS BRUVS fish detection tool documentation! &#8212; BRUVS Fish Locator 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-aims-bruvs-fish-detection-tool-documentation">
+<h1>Welcome to AIMS BRUVS fish detection tool documentation!<a class="headerlink" href="#welcome-to-aims-bruvs-fish-detection-tool-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-manage"></span><span class="target" id="module-src.tools"></span><span class="target" id="module-src.tools.pre_processing_tools"></span><dl class="class">
+<dt id="src.tools.pre_processing_tools.YoloTools">
+<em class="property">class </em><code class="descclassname">src.tools.pre_processing_tools.</code><code class="descname">YoloTools</code><a class="reference internal" href="_modules/src/tools/pre_processing_tools.html#YoloTools"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.tools.pre_processing_tools.YoloTools" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="src.tools.pre_processing_tools.YoloTools.directory_template_match">
+<code class="descname">directory_template_match</code><span class="sig-paren">(</span><em>image_dir</em>, <em>template_dir</em>, <em>draw_box</em>, <em>normalised_coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/tools/pre_processing_tools.html#YoloTools.directory_template_match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.tools.pre_processing_tools.YoloTools.directory_template_match" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image_dir</strong> – </li>
+<li><strong>label_dir</strong> – </li>
+<li><strong>draw_box</strong> – </li>
+<li><strong>normalised_coords</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.tools.pre_processing_tools.YoloTools.generate_yolo_labels">
+<code class="descname">generate_yolo_labels</code><span class="sig-paren">(</span><em>image_file</em>, <em>label</em>, <em>coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/tools/pre_processing_tools.html#YoloTools.generate_yolo_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.tools.pre_processing_tools.YoloTools.generate_yolo_labels" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>label</strong> – </li>
+<li><strong>image_file</strong> – </li>
+<li><strong>coords</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.tools.pre_processing_tools.YoloTools.generate_yolo_labels_from_bbtool">
+<code class="descname">generate_yolo_labels_from_bbtool</code><span class="sig-paren">(</span><em>label_dir</em>, <em>out_dir</em>, <em>cat_number</em>, <em>Width=1920</em>, <em>Height=1080</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/tools/pre_processing_tools.html#YoloTools.generate_yolo_labels_from_bbtool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.tools.pre_processing_tools.YoloTools.generate_yolo_labels_from_bbtool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a driecotry of labels using teh BBtool.  Convert them into the format that YOLO needs</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>out_dir</strong> – </li>
+<li><strong>cat_number</strong> – </li>
+<li><strong>label_dir</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.tools.pre_processing_tools.YoloTools.par_template_match">
+<code class="descname">par_template_match</code><span class="sig-paren">(</span><em>list_image_file</em>, <em>template_file</em>, <em>draw_images=False</em>, <em>image_num=None</em>, <em>normalised_coords=True</em>, <em>threshold=0.99</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/tools/pre_processing_tools.html#YoloTools.par_template_match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.tools.pre_processing_tools.YoloTools.par_template_match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parallel implementation of template match</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>draw_images</strong> – </li>
+<li><strong>template_file</strong> – The larger image or template we are finding image in.</li>
+<li><strong>list_image_file</strong> – image we wish to locate</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">tuple (x, y, w, h) coordinate of the x, y center of the image in the template and the w width and h height</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.tools.pre_processing_tools.YoloTools.split_training_and_validation">
+<code class="descname">split_training_and_validation</code><span class="sig-paren">(</span><em>label_directory</em>, <em>percentage_split=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/tools/pre_processing_tools.html#YoloTools.split_training_and_validation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.tools.pre_processing_tools.YoloTools.split_training_and_validation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a directory full of lables.  create two text files that define the text and validation data sets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>percentage_split</strong> – 0 -&gt; 1: 1 = 100%</li>
+<li><strong>label_directory</strong> – label where all the yolo formated label files are</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.tools.pre_processing_tools.YoloTools.streaming_template_match">
+<code class="descname">streaming_template_match</code><span class="sig-paren">(</span><em>image_dir</em>, <em>label_dir</em>, <em>movie_file</em>, <em>draw_box</em>, <em>normalised_coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/tools/pre_processing_tools.html#YoloTools.streaming_template_match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.tools.pre_processing_tools.YoloTools.streaming_template_match" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is for matching the images with a mppeg encoded video.  It requires you have to have ffmpeg installed.
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.tools.pre_processing_tools.YoloTools.template_match">
+<code class="descname">template_match</code><span class="sig-paren">(</span><em>image_file</em>, <em>template_file</em>, <em>normalised_coords=False</em>, <em>draw_images=True</em>, <em>draw_box=False</em>, <em>image_num=None</em>, <em>threshold=0.99</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/tools/pre_processing_tools.html#YoloTools.template_match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.tools.pre_processing_tools.YoloTools.template_match" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>normalised_coords</strong> – True is required for YOLO files.   False for drawing the boxes.</li>
+<li><strong>draw_images</strong> – </li>
+<li><strong>template_file</strong> – The larger image or template we are finding image in.</li>
+<li><strong>image_file</strong> – image we wish to locate</li>
+<li><strong>image_num</strong> – for batch processing. add the image number to the file name</li>
+<li><strong>threshold</strong> – This is the search threshold.  Lower means more permissive.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple (x, y, w, h) coordinate of the x, y center of the image in the template and the w width and h height</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-src.tools.helper_functions"></span><dl class="function">
+<dt id="src.tools.helper_functions.stupid_parallel">
+<code class="descclassname">src.tools.helper_functions.</code><code class="descname">stupid_parallel</code><span class="sig-paren">(</span><em>function</em>, <em>nprocesses=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/tools/helper_functions.html#stupid_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.tools.helper_functions.stupid_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stolen from here <a class="reference external" href="https://valentinoetal.wordpress.com/2014/06/10/stupid-parallel-pseudo-decorator-in-python/">https://valentinoetal.wordpress.com/2014/06/10/stupid-parallel-pseudo-decorator-in-python/</a></p>
+<p>Works similar to a decorator to paralelize “stupidly parallel”
+problems. Decorators and multiprocessing don’t play nicely because
+of naming issues.</p>
+<p>Inputs</p>
+<dl class="docutils">
+<dt>function <span class="classifier-delimiter">:</span> <span class="classifier">the function that will be parallelized. The FIRST</span></dt>
+<dd>argument is the one to be iterated on (in parallel). The other
+arguments are the same in all the parallel runs of the function
+(they can be named or unnamedarguments).</dd>
+<dt>nprocesses <span class="classifier-delimiter">:</span> <span class="classifier">int, the number of processes to run. Default is None.</span></dt>
+<dd>It is passed to multiprocessing.Pool (see that for details).</dd>
+</dl>
+<p>Output</p>
+<p>A paralelized function. DO NOT NAME IT THE SAME AS THE INPUT
+FUNCTION.</p>
+<p>Example</p>
+<dl class="docutils">
+<dt>def _square_and_offset(value, offset=0):</dt>
+<dd>return value**2 + offset</dd>
+<dt>parallel_square_and_offset = stupid_parallel(_square_and_offset,</dt>
+<dd>nprocesses=5)</dd>
+</dl>
+<p>print square_and_offset_parallel(range(10), offset=3)
+&gt; [3, 4, 7, 12, 19, 28, 39, 52, 67, 84]</p>
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Curtin University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

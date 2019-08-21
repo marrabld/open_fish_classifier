@@ -1,0 +1,375 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>src.tools.pre_processing_tools &#8212; BRUVS Fish Locator 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.tools.pre_processing_tools</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">io</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">..tools.meta</span> <span class="k">import</span> <span class="n">log</span> <span class="k">as</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">..tools.meta</span> <span class="k">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">config</span>
+
+
+<div class="viewcode-block" id="YoloTools"><a class="viewcode-back" href="../../../index.html#src.tools.pre_processing_tools.YoloTools">[docs]</a><span class="k">class</span> <span class="nc">YoloTools</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tools for pre-processing the data ready for use in YOLO</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="YoloTools.template_match"><a class="viewcode-back" href="../../../index.html#src.tools.pre_processing_tools.YoloTools.template_match">[docs]</a>    <span class="k">def</span> <span class="nf">template_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_file</span><span class="p">,</span> <span class="n">template_file</span><span class="p">,</span> <span class="n">normalised_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">draw_images</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">draw_box</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">image_num</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">threshold</span><span class="o">=</span><span class="mf">0.99</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param normalised_coords: True is required for YOLO files.   False for drawing the boxes.</span>
+<span class="sd">        :param draw_images:</span>
+<span class="sd">        :param template_file: The larger image or template we are finding image in.</span>
+<span class="sd">        :param image_file: image we wish to locate</span>
+<span class="sd">        :param image_num: for batch processing. add the image number to the file name</span>
+<span class="sd">        :param threshold:  This is the search threshold.  Lower means more permissive.</span>
+<span class="sd">        :return: tuple (x, y, w, h) coordinate of the x, y center of the image in the template and the w width and h height</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">image_num</span><span class="p">:</span>
+            <span class="n">image_num</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">image_file</span><span class="p">)</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">template_file</span><span class="p">)</span>
+
+        <span class="c1">## DEBUG</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">image_file</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">template_file</span><span class="p">)</span>
+
+        <span class="n">img_gray</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_RGB2GRAY</span><span class="p">)</span>
+        <span class="n">tpl_rgb</span> <span class="o">=</span> <span class="n">template</span>
+        <span class="n">tpl</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_RGB2GRAY</span><span class="p">)</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_3d</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">tpl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_3d</span><span class="p">(</span><span class="n">tpl</span><span class="p">)</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">D</span> <span class="o">=</span> <span class="n">tpl</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">matchTemplate</span><span class="p">(</span><span class="n">img_gray</span><span class="p">,</span> <span class="n">tpl</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">TM_CCOEFF_NORMED</span><span class="p">)</span> <span class="c1">#cv.TM_SQDIFF_NORMED)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> confident we found a match&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">res</span><span class="p">)))</span>
+        <span class="c1">#threshold = np.max(res)</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">res</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
+        <span class="c1"># loc = np.min(res)#np.where(res &gt;= threshold)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">loc</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span>
+
+        <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">loc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">draw_box</span><span class="p">:</span>
+                <span class="n">cv</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">tpl_rgb</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">),</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># , 0.2)</span>
+                <span class="n">cv</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">tpl_rgb</span><span class="p">,</span> <span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">tpl_rgb</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">draw_images</span><span class="p">:</span>
+                <span class="n">tmp</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">tpl_rgb</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="n">tmp</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tpl_rgb</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">tmp</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">tpl_rgb</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+
+                <span class="n">test_dir</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MODEL&#39;</span><span class="p">,</span> <span class="s1">&#39;test_directory&#39;</span><span class="p">)</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">image_num</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">image_file</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_loc.png&#39;</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+
+                <span class="n">cv</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">tmp</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">normalised_coords</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">((</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">W</span><span class="p">)</span>
+
+                <span class="c1">#return (pt[0] + w) / 2.0 / W, (pt[1] + h) / 2.0 / H, np.float(w) / W, np.float(h) / H</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">w</span><span class="p">)</span> <span class="p">)</span>  <span class="o">/</span> <span class="n">W</span><span class="p">,</span> <span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">h</span><span class="p">))</span> <span class="o">/</span> <span class="n">H</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">/</span> <span class="n">W</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="o">/</span> <span class="n">H</span>
+
+            <span class="k">return</span> <span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span></div>
+
+<div class="viewcode-block" id="YoloTools.par_template_match"><a class="viewcode-back" href="../../../index.html#src.tools.pre_processing_tools.YoloTools.par_template_match">[docs]</a>    <span class="k">def</span> <span class="nf">par_template_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_image_file</span><span class="p">,</span> <span class="n">template_file</span><span class="p">,</span> <span class="n">draw_images</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">image_num</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">normalised_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.99</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parallel implementation of template match</span>
+
+<span class="sd">        :param draw_images:</span>
+<span class="sd">        :param template_file: The larger image or template we are finding image in.</span>
+<span class="sd">        :param list_image_file: image we wish to locate</span>
+<span class="sd">        :return: tuple (x, y, w, h) coordinate of the x, y center of the image in the template and the w width and h height</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">import</span> <span class="nn">_thread</span> <span class="k">as</span> <span class="nn">thread</span>
+
+        <span class="k">def</span> <span class="nf">unwrap_fun</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="n">template_file</span><span class="p">):</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">YoloTools</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">template_match</span><span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="n">template_file</span><span class="p">,</span> <span class="n">draw_images</span><span class="o">=</span><span class="n">draw_images</span><span class="p">,</span> <span class="n">image_num</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                      <span class="n">normalised_coords</span><span class="o">=</span><span class="n">normalised_coords</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+
+        <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">image_file</span> <span class="ow">in</span> <span class="n">list_image_file</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Thread :: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">thread</span><span class="o">.</span><span class="n">start_new_thread</span><span class="p">(</span><span class="n">unwrap_fun</span><span class="p">,</span> <span class="p">(</span><span class="n">image_file</span><span class="p">,</span> <span class="n">template_file</span><span class="p">,))</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span></div>
+
+<div class="viewcode-block" id="YoloTools.directory_template_match"><a class="viewcode-back" href="../../../index.html#src.tools.pre_processing_tools.YoloTools.directory_template_match">[docs]</a>    <span class="k">def</span> <span class="nf">directory_template_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_dir</span><span class="p">,</span> <span class="n">template_dir</span><span class="p">,</span> <span class="n">draw_box</span><span class="p">,</span> <span class="n">normalised_coords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param image_dir:</span>
+<span class="sd">        :param label_dir:</span>
+<span class="sd">        :param draw_box:</span>
+<span class="sd">        :param normalised_coords:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">images</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">image_dir</span><span class="p">)</span>
+        <span class="n">templates</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">template_dir</span><span class="p">)</span>
+        <span class="n">label_dir</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MODEL&#39;</span><span class="p">,</span> <span class="s1">&#39;label_directory&#39;</span><span class="p">)</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PRE_PROCESSING_TOOL&#39;</span><span class="p">,</span> <span class="s1">&#39;template_threshold&#39;</span><span class="p">)</span>
+
+        <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">image</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">images</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">jj</span><span class="p">,</span> <span class="n">template</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">templates</span><span class="p">):</span>
+
+                <span class="n">_image</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+                <span class="n">_template</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_dir</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+                <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">iter_num</span> <span class="o">=</span> <span class="n">k</span>
+
+                <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Itter </span><span class="si">{}</span><span class="s1"> :: template </span><span class="si">{}</span><span class="s1"> :: fish </span><span class="si">{}</span><span class="s1"> :: Trying to find </span><span class="si">{}</span><span class="s1"> in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iter_num</span><span class="p">,</span> <span class="n">jj</span><span class="p">,</span> <span class="n">ii</span><span class="p">,</span> <span class="n">_image</span><span class="p">,</span> <span class="n">_template</span><span class="p">))</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_match</span><span class="p">(</span><span class="n">_image</span><span class="p">,</span> <span class="n">_template</span><span class="p">,</span> <span class="n">normalised_coords</span><span class="o">=</span><span class="n">normalised_coords</span><span class="p">,</span> <span class="n">draw_images</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                     <span class="n">draw_box</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">image_num</span><span class="o">=</span><span class="n">ii</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+                    <span class="n">label_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">_template</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span>
+                    <span class="n">label_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_dir</span><span class="p">,</span> <span class="n">label_file</span><span class="p">)</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">image_dir</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">generate_yolo_labels</span><span class="p">(</span><span class="n">label_file</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;x_pos :: </span><span class="si">{}</span><span class="s1"> , y_pos :: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+
+                    <span class="c1">#  We assume that we have one fish in one template.  therefore we can pop the fish and the template.</span>
+                    <span class="c1"># This might results in errors if we find false positives.</span>
+                    <span class="c1"># templates.pop(jj)</span>
+                    <span class="c1"># images.pop(ii)</span>
+                    <span class="c1">#break</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;image </span><span class="si">{}</span><span class="s1"> not found in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_image</span><span class="p">,</span> <span class="n">_template</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="YoloTools.streaming_template_match"><a class="viewcode-back" href="../../../index.html#src.tools.pre_processing_tools.YoloTools.streaming_template_match">[docs]</a>    <span class="k">def</span> <span class="nf">streaming_template_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_dir</span><span class="p">,</span> <span class="n">label_dir</span><span class="p">,</span> <span class="n">movie_file</span><span class="p">,</span> <span class="n">draw_box</span><span class="p">,</span> <span class="n">normalised_coords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is for matching the images with a mppeg encoded video.  It requires you have to have ffmpeg installed.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">subprocess</span>
+
+        <span class="n">template_threshold</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PRE_PROCESSING_TOOL&#39;</span><span class="p">,</span> <span class="s1">&#39;template_threshold&#39;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;template threshold is :: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">template_threshold</span><span class="p">))</span>
+
+        <span class="c1"># Step through all of the frames in the video and do a template match</span>
+
+        <span class="n">list_small_img</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">image_dir</span><span class="p">)</span>
+
+        <span class="n">frame_num</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">num_frames</span> <span class="o">=</span> <span class="mi">50</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span>
+        <span class="n">num_seq</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">frame_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">frame_num</span><span class="p">)</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="s1">&#39;template.jpg&#39;</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">frame_num</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">template</span>
+            <span class="n">call_string</span> <span class="o">=</span> <span class="s1">&#39;ffmpeg -i </span><span class="si">{}</span><span class="s1"> -vf &quot;select=eq(n\,</span><span class="si">{}</span><span class="s1">)&quot; -vframes </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">movie_file</span><span class="p">,</span> <span class="n">frame_num</span><span class="p">,</span> <span class="n">num_seq</span><span class="p">,</span>
+                                                                                      <span class="n">template</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">call_string</span><span class="p">)</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">call_string</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">small_img</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_small_img</span><span class="p">):</span>
+                <span class="n">small_img</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_dir</span><span class="p">,</span> <span class="n">small_img</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Looking for </span><span class="si">{}</span><span class="s1"> in template&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">small_img</span><span class="p">))</span>
+                    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_match</span><span class="p">(</span><span class="n">small_img</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">normalised_coords</span><span class="o">=</span><span class="n">normalised_coords</span><span class="p">,</span>
+                                                     <span class="n">draw_images</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">draw_box</span><span class="o">=</span><span class="n">draw_box</span><span class="p">,</span>
+                                                     <span class="n">image_num</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">frame_num</span><span class="p">),</span> <span class="n">threshold</span><span class="o">=</span><span class="n">template_threshold</span><span class="p">)</span>
+                    <span class="n">label_file</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">frame_num</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">small_img</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_loc.txt&#39;</span>
+                    <span class="n">label_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_dir</span><span class="p">,</span> <span class="n">label_file</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">generate_yolo_labels</span><span class="p">(</span><span class="n">label_file</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;x_pos :: </span><span class="si">{}</span><span class="s1"> , y_pos :: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Can&#39;t find </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">list_small_img</span><span class="p">[</span><span class="n">ii</span><span class="p">]))</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">template</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="YoloTools.generate_yolo_labels"><a class="viewcode-back" href="../../../index.html#src.tools.pre_processing_tools.YoloTools.generate_yolo_labels">[docs]</a>    <span class="k">def</span> <span class="nf">generate_yolo_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_file</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param label:</span>
+<span class="sd">        :param image_file:</span>
+<span class="sd">        :param coords:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">label_file</span> <span class="o">=</span> <span class="n">image_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">label_file</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">coords</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="YoloTools.generate_yolo_labels_from_bbtool"><a class="viewcode-back" href="../../../index.html#src.tools.pre_processing_tools.YoloTools.generate_yolo_labels_from_bbtool">[docs]</a>    <span class="k">def</span> <span class="nf">generate_yolo_labels_from_bbtool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_dir</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">cat_number</span><span class="p">,</span> <span class="n">Width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">Height</span><span class="o">=</span><span class="mi">1080</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a driecotry of labels using teh BBtool.  Convert them into the format that YOLO needs</span>
+
+<span class="sd">        :param out_dir:</span>
+<span class="sd">        :param cat_number:</span>
+<span class="sd">        :param label_dir:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">file_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_list</span> <span class="k">for</span> <span class="n">file_list</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">label_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_dir</span><span class="p">,</span> <span class="n">file_list</span><span class="p">))]</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_dir</span><span class="p">,</span> <span class="n">file</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coords</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">ii</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># skip the first line</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">file</span><span class="p">),</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fw</span><span class="p">:</span>
+                        <span class="c1"># ============================== #</span>
+                        <span class="c1"># convert the coordinates</span>
+                        <span class="c1"># ============================== #</span>
+                        <span class="c1">#    From</span>
+                        <span class="c1">#    +---b---+</span>
+                        <span class="c1">#    |       |</span>
+                        <span class="c1">#    a       c</span>
+                        <span class="c1">#    |       |</span>
+                        <span class="c1">#    +---d---+</span>
+                        <span class="c1">#   To</span>
+                        <span class="c1">#   +-------+   ^</span>
+                        <span class="c1">#   |       |   |</span>
+                        <span class="c1">#   | (x,y) |   h</span>
+                        <span class="c1">#   |       |   |</span>
+                        <span class="c1">#   +-------+   |</span>
+                        <span class="c1">#   ----w---&gt;</span>
+                        <span class="n">coord</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                        <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+                        <span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span>
+                        <span class="n">h</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="p">(</span><span class="n">w</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+                        <span class="n">y</span> <span class="o">=</span> <span class="n">b</span> <span class="o">+</span> <span class="p">(</span><span class="n">h</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+
+                        <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cat_number</span><span class="p">,</span> <span class="n">x</span> <span class="o">/</span> <span class="n">Width</span><span class="p">,</span> <span class="n">y</span> <span class="o">/</span> <span class="n">Height</span><span class="p">,</span> <span class="n">w</span> <span class="o">/</span> <span class="n">Width</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="n">Height</span><span class="p">))</span>
+                        <span class="n">fw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="YoloTools.split_training_and_validation"><a class="viewcode-back" href="../../../index.html#src.tools.pre_processing_tools.YoloTools.split_training_and_validation">[docs]</a>    <span class="k">def</span> <span class="nf">split_training_and_validation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_directory</span><span class="p">,</span> <span class="n">percentage_split</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a directory full of lables.  create two text files that define the text and validation data sets.</span>
+
+<span class="sd">        :param percentage_split: 0 -&gt; 1: 1 = 100%</span>
+<span class="sd">        :param label_directory: label where all the yolo formated label files are</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">import</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">os</span>
+
+        <span class="c1"># Create and/or truncate train.txt and test.txt</span>
+        <span class="n">file_train</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;train.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">file_test</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;test.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+        <span class="n">label_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">label_directory</span><span class="p">)</span>
+
+        <span class="n">test_directory</span> <span class="o">=</span> <span class="n">label_directory</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Populate train.txt and test.txt</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">index_test</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="mf">100.0</span> <span class="o">/</span> <span class="n">percentage_split</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pathAndFilename</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">iglob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">label_directory</span><span class="p">,</span> <span class="s2">&quot;*.txt&quot;</span><span class="p">)):</span>
+            <span class="n">title</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">pathAndFilename</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="n">index_test</span><span class="p">:</span>
+                <span class="n">counter</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">file_test</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_directory</span><span class="p">,</span>  <span class="n">title</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.jpg&#39;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_train</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_directory</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.jpg&#39;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Curtin University.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
