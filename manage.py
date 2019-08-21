@@ -60,7 +60,7 @@ def run_rip_video(video, start_frame=None, end_frame=None):
 
 
 @manager.command
-def run_rip_and_isolate(video, start_frame=None):
+def run_rip_and_isolate(video, em_file=None, start_frame=None):
     """
     Meta script for now
     :return:
@@ -85,7 +85,7 @@ def run_rip_and_isolate(video, start_frame=None):
     iso = IsolateObjects(video=video)
     iso.render()
 
-    ann = Draw(video)
+    ann = Draw(video=video, em_file=em_file)
     ann.draw_annotations()
 
 

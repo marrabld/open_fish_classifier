@@ -6,6 +6,8 @@ import numpy as np
 import cv2
 import pylab
 import json
+from os.path import expanduser
+import os.path
 
 import skimage.measure
 
@@ -15,7 +17,7 @@ class Draw:
     Drawing tools for overlaying event measure data onto video frames
     """
 
-    def __init__(self, video=None):
+    def __init__(self, video=None, em_file=None, match_file=None):
         """
         Class constructor
         """
@@ -23,6 +25,8 @@ class Draw:
         self.try_match = True
         self.match_found = False
         self.video = video
+        self.match_file = match_file
+        self.em_file = em_file
         self.box_found = {}
 
     def draw_annotations(self):
@@ -35,10 +39,15 @@ class Draw:
         # root.filename = filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
         #                                            title="Select Event Measure file",
         #                                            filetypes=(("Event measure files", "*.txt"), ("all files", "*.*")))
-        root.filename = filedialog.askopenfilename(initialdir='/home/marrabld/Videos',
-                                                   title="Select Event Measure file",
-                                                   filetypes=(("Event measure files", "*.txt"), ("all files", "*.*")))
-        print(root.filename)
+
+        if self.em_file:
+            root.filename = self.em_file
+        else:
+            home = expanduser("~")
+            root.filename = filedialog.askopenfilename(initialdir=os.path.join(home, 'Videos'),
+                                                       title="Select Event Measure file",
+                                                       filetypes=(("Event measure files", "*.txt"), ("all files", "*.*")))
+            print(root.filename)
 
         labels = []
         with open(root.filename) as f:
@@ -54,14 +63,27 @@ class Draw:
                                                          title="Select video file",
                                                          filetypes=(("Video Files", "*.*"), ("all files", "*.*")))
 
-        if self.try_match:
-            box_file = filedialog.askopenfilename(initialdir='mov/merge',
-                                                  title='Region Proposals',
-                                                  filetypes=(("JSON Files", "*.json"), ("all files", "*.*")))
+        #  251_L425_GP030009_3.MP4_box_proposals.json
+        print('mov/merge/{video}_box_proposals.json'.format(video=os.path.basename(self.video)))
+        # Don;t read this.  I am ashamed but i have an hour to go to get this working.
+        if os.path.isfile('mov/merge/{video}_box_proposals.json'.format(video=os.path.basename(self.video))):
+            self.match_file = 'mov/merge/{video}_box_proposals.json'.format(video=os.path.basename(self.video))
+
+        else:
+            self.match_file = None
+
+        if self.match_file:
+            box_file = self.match_file
+            print('Found {} '.format(box_file))
+        else:
             if self.try_match:
-                # read in our region proposals
-                with open(box_file, 'r') as f:
-                    box_proposals = json.load(f)
+                box_file = filedialog.askopenfilename(initialdir='mov/merge',
+                                                      title='Region Proposals',
+                                                      filetypes=(("JSON Files", "*.json"), ("all files", "*.*")))
+        if self.try_match:
+            # read in our region proposals
+            with open(box_file, 'r') as f:
+                box_proposals = json.load(f)
 
         for item in labels:
             found_box_list = []
