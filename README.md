@@ -1,5 +1,5 @@
 # Underwater fish detection tool
-contributes: Dan and Mauro 
+contributes: Dan, Mauro and Mat 
 
 ![](fish.gif)
 
