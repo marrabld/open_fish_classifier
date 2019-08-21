@@ -58,6 +58,7 @@ def run_rip_video(video, start_frame=None, end_frame=None):
     rip = RipVideo(video, int(start_frame), int(end_frame))
     rip.render()
 
+
 @manager.command
 def run_rip_and_isolate(video, start_frame=None):
     """
@@ -67,7 +68,7 @@ def run_rip_and_isolate(video, start_frame=None):
 
     buffer = 50
     start_frame = int(start_frame) - int(buffer)
-    end_frame = int(start_frame) + int(buffer) #  We don't really need to go past.  ... but just incase
+    end_frame = int(start_frame) + int(buffer)  # We don't really need to go past.  ... but just incase
 
     print(start_frame)
     print(end_frame)
@@ -87,6 +88,7 @@ def run_rip_and_isolate(video, start_frame=None):
     ann = Draw(video)
     ann.draw_annotations()
 
+
 @manager.command
 def run_find_fish(video, event_measure_file=None):
     """
@@ -98,7 +100,6 @@ def run_find_fish(video, event_measure_file=None):
     """
 
 
-
 @manager.command
 def run_delete_cache():
     import os
@@ -107,10 +108,32 @@ def run_delete_cache():
     rgb_files = glob.glob('mov/rgb/*')
     bak_files = glob.glob('mov/bak/1/*')
     merge_files = glob.glob('mov/merge/*')
-    for r, b, m in zip(rgb_files, bak_files, merge_files):
-        os.remove(r)
-        os.remove(b)
-        os.remove(m)
+    found_files = glob.glob('mov/found/*')
+    print('.', end='')
+
+    for r in rgb_files:
+        if '__init__.py' not in r:
+            print('.', end='')
+            os.remove(r)
+    print('rgb deleted')
+
+    for b in bak_files:
+        if '__init__.py' not in b:
+            print('.', end='')
+            os.remove(b)
+    print('background deleted')
+
+    for m in merge_files:
+        if '__init__.py' not in m:
+            print('.', end='')
+            os.remove(m)
+    print('merged deleted')
+
+    for f in found_files:
+        if '__init__.py' not in f:
+            print('.', end='')
+            os.remove(f)
+    print('found files deleted')
 
 
 

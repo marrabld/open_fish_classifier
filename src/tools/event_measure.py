@@ -147,5 +147,5 @@ class Draw:
             # mng.resize(*mng.window.maxsize())
 
         json_file = json.dumps(self.box_found)  # note i gave it a different name
-        with open("mov/found/{}_box_found.json".format(os.path.basename(self.video)), 'a') as f:
+        with open("mov/found/{}_box_found.json".format(os.path.basename(self.video)), 'w') as f:
             f.write(json_file)
