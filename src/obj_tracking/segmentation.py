@@ -248,7 +248,12 @@ class IsolateObjects:
         # cv2.destroyAllWindows()
         import json
         json_file = json.dumps(self.box_proposals)  # note i gave it a different name
-        with open("mov/merge/{}_box_proposals.json".format(os.path.basename(self.video)), 'w') as f:
-            f.write(json_file)
+        try:
+            with open("mov/merge/{}_box_proposals.json".format(os.path.basename(self.video)), 'w') as f:
+                f.write(json_file)
+        except:  ##  We didn't pass the video file name
+            with open("mov/merge/box_proposals.json", 'w') as f:
+                f.write(json_file)
 
-        print('Done')
+
+        print('Done Isolating objects')

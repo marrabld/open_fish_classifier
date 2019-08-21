@@ -1,6 +1,6 @@
 from manager import Manager
 import os
-
+import csv
 from src.tools.video import RipVideo, RenderVideo
 from src.tools.pre_processing_tools import YoloTools
 from src.tools.meta import log as log
@@ -23,10 +23,10 @@ def run_tests():
 
 
 @manager.command
-def run_draw_annotations():
+def run_draw_annotations(video, em_file=None):
     """Draw all of event measure annotations"""
 
-    ann = Draw()
+    ann = Draw(video=video, em_file=em_file)
     ann.draw_annotations()
 
 
@@ -65,28 +65,61 @@ def run_rip_and_isolate(video, em_file=None, start_frame=None):
     Meta script for now
     :return:
     """
-
     buffer = 50
-    start_frame = int(start_frame) - int(buffer)
-    end_frame = int(start_frame) + int(buffer)  # We don't really need to go past.  ... but just incase
 
-    print(start_frame)
-    print(end_frame)
+    # If we don't say a start frame then go through all the annotations in the em_file
+    if em_file and not start_frame:
+        labels = []
+        with open(em_file) as f:
+            reader = csv.DictReader(f, delimiter='\t')
+            # dic = dict(reader)
+            for row in reader:
+                labels.append(row)
 
-    print('Ripping Video')
-    rip = RipVideo(video, int(start_frame), int(end_frame))
-    rip.render()
+        for item in labels:
+            start_frame = item['Frame']
+            start_frame = int(start_frame) - int(buffer)
+            end_frame = int(start_frame) + int(buffer)  # We don't really need to go past.  ... but just in case
 
-    print('Running segmentation')
-    seg = Motion(video, int(start_frame), int(end_frame))
-    seg.render()
+            print(start_frame)
+            print(end_frame)
 
-    print('isolating objects')
-    iso = IsolateObjects(video=video)
-    iso.render()
+            print('Ripping Video')
+            rip = RipVideo(video, int(start_frame), int(end_frame))
+            rip.render()
 
-    ann = Draw(video=video, em_file=em_file)
-    ann.draw_annotations()
+            print('Running segmentation')
+            seg = Motion(video, int(start_frame), int(end_frame))
+            seg.render()
+
+        print('isolating objects')
+        iso = IsolateObjects(video=video)
+        iso.render()
+
+        ann = Draw(video=video, em_file=em_file)
+        ann.draw_annotations()
+
+    else:
+        start_frame = int(start_frame) - int(buffer)
+        end_frame = int(start_frame) + int(buffer)  # We don't really need to go past.  ... but just in case
+
+        print(start_frame)
+        print(end_frame)
+
+        print('Ripping Video')
+        rip = RipVideo(video, int(start_frame), int(end_frame))
+        rip.render()
+
+        print('Running segmentation')
+        seg = Motion(video, int(start_frame), int(end_frame))
+        seg.render()
+
+        print('isolating objects')
+        iso = IsolateObjects(video=video)
+        iso.render()
+
+        ann = Draw(video=video, em_file=em_file)
+        ann.draw_annotations()
 
 
 @manager.command

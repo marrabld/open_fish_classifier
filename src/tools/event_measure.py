@@ -36,9 +36,6 @@ class Draw:
         """
 
         root = Tk()
-        # root.filename = filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
-        #                                            title="Select Event Measure file",
-        #                                            filetypes=(("Event measure files", "*.txt"), ("all files", "*.*")))
 
         if self.em_file:
             root.filename = self.em_file
@@ -117,14 +114,7 @@ class Draw:
                             # Keep track of the ones that we find.
                             found_box_list.append([x, y, w, h])
 
-                            # cv2.rectangle(drawing, (x, y), (x + w, y + h), (255, 255, 0), 1)
                             cv2.rectangle(rgb_frame, (x, y), (x + w, y + h), (255, 255, 0), 2)
-
-                            # Debugging the box drawing
-                            # dbg = np.zeros_like(drawing)
-                            # cv2.rectangle(dbg, (x, y), (x + w, y + h), (255, 255, 0), 12)
-                            # pylab.imshow(dbg)
-                            # pylab.show()
 
                             font = cv2.FONT_HERSHEY_PLAIN
                             cv2.putText(rgb_frame, '{} {}'.format(item['Genus'], item['Species']),
@@ -135,7 +125,6 @@ class Draw:
                             self.box_found[frame] = found_box_list
 
                             pylab.imshow(rgb_frame)
-                            # pylab.show()
                             pylab.savefig(
                                 'mov/found/box_{video}_{frame}_{num_item}.jpg'.format(
                                     video=os.path.basename(self.video),
