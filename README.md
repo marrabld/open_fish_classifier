@@ -1,4 +1,4 @@
-# AIMS BRUVS fish detection tool
+# Underwater fish detection tool
 contributes: Dan and Mauro 
 
 ![](fish.gif)
