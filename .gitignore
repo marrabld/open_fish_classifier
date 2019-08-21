@@ -1,7 +1,9 @@
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
 
-mov/*
+mov/**/*.jpg
+mov/**/*.jpeg
+
 obj-tracking/*
 .idea/*
 
