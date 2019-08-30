@@ -5,7 +5,7 @@ from src.tools.video import RipVideo, RenderVideo
 from src.tools.pre_processing_tools import YoloTools
 from src.tools.meta import log as log
 from src.tools.meta import config as config
-from src.tools.event_measure import Draw
+from src.tools.event_measure import Draw, Extract
 
 from src.obj_tracking.segmentation import Motion, IsolateObjects
 
@@ -28,6 +28,14 @@ def run_draw_annotations(video, em_file=None):
 
     ann = Draw(video=video, em_file=em_file)
     ann.draw_annotations()
+
+
+@manager.command
+def run_draw_all_annotations(video, em_file=None):
+    """Draw all of event measure annotations"""
+
+    ann = Draw(video=video, em_file=em_file)
+    ann.draw_all_annotations()
 
 
 @manager.command
@@ -57,6 +65,17 @@ def run_rip_video(video, start_frame=None, end_frame=None):
 
     rip = RipVideo(video, int(start_frame), int(end_frame))
     rip.render()
+
+@manager.command
+def run_crop_event_measure_measurement_boxes(video_base_directory,
+                                       em_lengths_file,
+                                       em_image_pt_pair_file,
+                                       output_directory):
+
+    Extract().measurements_to_bounding_boxes(video_base_directory,
+                                             em_lengths_file,
+                                             em_image_pt_pair_file,
+                                             output_directory)
 
 
 @manager.command

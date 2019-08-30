@@ -8,4 +8,6 @@ scipy==1.0.0
 manager==2.0.5
 skimage==0.0
 opencv-contrib-python
+pandas
 manage.py
+
