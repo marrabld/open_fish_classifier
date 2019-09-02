@@ -115,6 +115,10 @@ class Extract:
         genus_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
         family_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
 
+        species_crop_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
+        genus_crop_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
+        family_crop_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
+
         left_videos = df.FilenameLeft.unique()
         right_videos = df.FilenameRight.unique()
 
@@ -130,6 +134,8 @@ class Extract:
 
                 if df[(df.OpCode == code) & (df.ImagePtPair == point)].shape[0] == 0:
                     continue
+
+                ######################################## do left frame
 
                 filename_left = df[(df.OpCode == code) & (df.ImagePtPair == point)]["FilenameLeft"].values[0]
                 frame_left = df[(df.OpCode == code) & (df.ImagePtPair == point)]["FrameLeft"].values[0]
@@ -160,7 +166,7 @@ class Extract:
                 fish_output_frame_path = os.path.join(crops_output_directory,
                                                       filename_left + "." + str(int(frame_left)) + "." + str(
                                                           int(lx0)) + "." + str(int(ly0)) + "." + str(
-                                                          int(lx1)) + "." + str(int(ly0)) + ".png")
+                                                          int(lx1)) + "." + str(int(ly1)) + ".png")
 
                 species_df = species_df.append(
                     {"filename": output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": species},
@@ -172,13 +178,13 @@ class Extract:
                     {"filename": output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": family},
                     ignore_index=True)
 
-                species_crop_df = species_df.append(
+                species_crop_df = species_crop_df.append(
                     {"filename": fish_output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": species},
                     ignore_index=True)
-                genus_crop_df = genus_df.append(
+                genus_crop_df = genus_crop_df.append(
                     {"filename": fish_output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": genus},
                     ignore_index=True)
-                family_crop_df = family_df.append(
+                family_crop_df = family_crop_df.append(
                     {"filename": fish_output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": family},
                     ignore_index=True)
 
@@ -197,14 +203,84 @@ class Extract:
                 # save crop
                 self.crop_and_save_fish(pil_image, (lx0, ly0, lx1, ly1), fish_output_frame_path)
 
+                ############################# do right frame
+
+                filename_left = df[(df.OpCode == code) & (df.ImagePtPair == point)]["FilenameRight"].values[0]
+                frame_left = df[(df.OpCode == code) & (df.ImagePtPair == point)]["FrameRight"].values[0]
+                lx0 = df[(df.OpCode == code) & (df.ImagePtPair == point) & (df.Index == 0)]["Rx"].values[0]
+                ly0 = df[(df.OpCode == code) & (df.ImagePtPair == point) & (df.Index == 0)]["Ry"].values[0]
+                lx1 = df[(df.OpCode == code) & (df.ImagePtPair == point) & (df.Index == 1)]["Rx"].values[0]
+                ly1 = df[(df.OpCode == code) & (df.ImagePtPair == point) & (df.Index == 1)]["Ry"].values[0]
+
+                frame_left = int(frame_left)
+
+                species = df[(df.OpCode == code) & (df.ImagePtPair == point)]["Species"].values[0]
+                genus = df[(df.OpCode == code) & (df.ImagePtPair == point)]["Genus"].values[0]
+                family = df[(df.OpCode == code) & (df.ImagePtPair == point)]["Family"].values[0]
+
+                lx0, ly0, lx1, ly1 = self.find_fish_bounds(lx0, ly0, lx1, ly1)
+
+                if lx0 >= lx1 or ly0 >= ly1:
+                    print("skipping", filename_left, frame_left, lx0, ly0, lx1, ly1, family, genus, species)
+                    continue
+
+                video = os.path.join(video_base_directory, filename_left)
+
+                if not os.path.exists(video):
+                    print("continuing")
+                    continue
+
+                output_frame_path = os.path.join(frames_output_directory,
+                                                 filename_left + "." + str(int(frame_left)) + ".png")
+                fish_output_frame_path = os.path.join(crops_output_directory,
+                                                      filename_left + "." + str(int(frame_left)) + "." + str(
+                                                          int(lx0)) + "." + str(int(ly0)) + "." + str(
+                                                          int(lx1)) + "." + str(int(ly1)) + ".png")
+
+                species_df = species_df.append(
+                    {"filename": output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": species},
+                    ignore_index=True)
+                genus_df = genus_df.append(
+                    {"filename": output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": genus},
+                    ignore_index=True)
+                family_df = family_df.append(
+                    {"filename": output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": family},
+                    ignore_index=True)
+
+                species_crop_df = species_crop_df.append(
+                    {"filename": fish_output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": species},
+                    ignore_index=True)
+                genus_crop_df = genus_crop_df.append(
+                    {"filename": fish_output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": genus},
+                    ignore_index=True)
+                family_crop_df = family_crop_df.append(
+                    {"filename": fish_output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": family},
+                    ignore_index=True)
+
+                cap = cv2.VideoCapture(video)  # video_name is the video being called
+                # amount_of_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                # print(amount_of_frames)
+                cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_left))  # Where frame_no is the frame you want
+                ret, frame_left = cap.read()  # Read the frame
+
+                pil_image = cv2.cvtColor(frame_left, cv2.COLOR_BGR2RGB)
+                pil_image = Image.fromarray(pil_image)
+
+                # save frame
+                pil_image.save(output_frame_path, "PNG")
+
+                # save crop
+                self.crop_and_save_fish(pil_image, (lx0, ly0, lx1, ly1), fish_output_frame_path)
+
+                break
 
         species_df.to_csv(os.path.join(output_directory, "SpeciesBBOXAnnotations-FromMeasurementFile.csv"))
         family_df.to_csv(os.path.join(output_directory, "FamilyBBOXAnnotations-FromMeasurementFile.csv"))
         genus_df.to_csv(os.path.join(output_directory, "GenusBBOXAnnotations-FromMeasurementFile.csv"))
 
         species_crop_df.to_csv(os.path.join(output_directory, "SpeciesCropAnnotations-FromMeasurementFile.csv"))
-        family_crop_df.to_csv(os.path.join(output_directory, "SpeciesCropAnnotations-FromMeasurementFile.csv"))
-        genus_crop_df.to_csv(os.path.join(output_directory, "SpeciesCropAnnotations-FromMeasurementFile.csv"))
+        family_crop_df.to_csv(os.path.join(output_directory, "FamilyCropAnnotations-FromMeasurementFile.csv"))
+        genus_crop_df.to_csv(os.path.join(output_directory, "GenusCropAnnotations-FromMeasurementFile.csv"))
 
 class Draw:
     """
