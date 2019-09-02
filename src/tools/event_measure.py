@@ -272,8 +272,6 @@ class Extract:
                 # save crop
                 self.crop_and_save_fish(pil_image, (lx0, ly0, lx1, ly1), fish_output_frame_path)
 
-                break
-
         species_df.to_csv(os.path.join(output_directory, "SpeciesBBOXAnnotations-FromMeasurementFile.csv"))
         family_df.to_csv(os.path.join(output_directory, "FamilyBBOXAnnotations-FromMeasurementFile.csv"))
         genus_df.to_csv(os.path.join(output_directory, "GenusBBOXAnnotations-FromMeasurementFile.csv"))
