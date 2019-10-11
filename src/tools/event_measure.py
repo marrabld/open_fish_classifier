@@ -10,6 +10,7 @@ from os.path import expanduser
 import os.path
 import pandas
 import traceback
+from matplotlib import pyplot as plt
 
 import skimage.measure
 
@@ -167,6 +168,30 @@ class Extract:
                                                       filename_left + "." + str(int(frame_left)) + "." + str(
                                                           int(lx0)) + "." + str(int(ly0)) + "." + str(
                                                           int(lx1)) + "." + str(int(ly1)) + ".png")
+                frame_no = frame_left
+                try:
+                    cap = cv2.VideoCapture(video)  # video_name is the video being called
+                    # amount_of_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                    # print(amount_of_frames)
+
+                    cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_left))  # Where frame_no is the frame you want
+                    ret, frame_left = cap.read()  # Read the frame
+
+                    print("leftvideoname+frame", video, frame_left)
+
+                    pil_image = cv2.cvtColor(frame_left, cv2.COLOR_BGR2RGB)
+                    pil_image = Image.fromarray(pil_image)
+
+                    # save frame
+                    pil_image.save(output_frame_path, "PNG")
+
+                    # save crop
+                    self.crop_and_save_fish(pil_image, (lx0, ly0, lx1, ly1), fish_output_frame_path)
+
+                except:
+                    print("Had problem with", video, frame_no)
+                    traceback.print_exc()
+                    continue
 
                 species_df = species_df.append(
                     {"filename": output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": species},
@@ -187,21 +212,6 @@ class Extract:
                 family_crop_df = family_crop_df.append(
                     {"filename": fish_output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": family},
                     ignore_index=True)
-
-                cap = cv2.VideoCapture(video)  # video_name is the video being called
-                # amount_of_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-                # print(amount_of_frames)
-                cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_left))  # Where frame_no is the frame you want
-                ret, frame_left = cap.read()  # Read the frame
-
-                pil_image = cv2.cvtColor(frame_left, cv2.COLOR_BGR2RGB)
-                pil_image = Image.fromarray(pil_image)
-
-                # save frame
-                pil_image.save(output_frame_path, "PNG")
-
-                # save crop
-                self.crop_and_save_fish(pil_image, (lx0, ly0, lx1, ly1), fish_output_frame_path)
 
                 ############################# do right frame
 
@@ -236,6 +246,28 @@ class Extract:
                                                       filename_left + "." + str(int(frame_left)) + "." + str(
                                                           int(lx0)) + "." + str(int(ly0)) + "." + str(
                                                           int(lx1)) + "." + str(int(ly1)) + ".png")
+                frame_no = frame_left
+                try:
+                    cap = cv2.VideoCapture(video)  # video_name is the video being called
+                    # amount_of_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                    # print(amount_of_frames)
+
+                    cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_left))  # Where frame_no is the frame you want
+                    ret, frame_left = cap.read()  # Read the frame
+
+                    pil_image = cv2.cvtColor(frame_left, cv2.COLOR_BGR2RGB)
+                    pil_image = Image.fromarray(pil_image)
+
+                    # save frame
+                    pil_image.save(output_frame_path, "PNG")
+
+                    # save crop
+                    self.crop_and_save_fish(pil_image, (lx0, ly0, lx1, ly1), fish_output_frame_path)
+
+                except:
+                    print("Had problem with", video, frame_no)
+                    traceback.print_exc()
+                    continue
 
                 species_df = species_df.append(
                     {"filename": output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": species},
@@ -257,21 +289,6 @@ class Extract:
                     {"filename": fish_output_frame_path, "x0": lx0, "y0": ly0, "x1": lx1, "y1": ly1, "label": family},
                     ignore_index=True)
 
-                cap = cv2.VideoCapture(video)  # video_name is the video being called
-                # amount_of_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-                # print(amount_of_frames)
-                cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_left))  # Where frame_no is the frame you want
-                ret, frame_left = cap.read()  # Read the frame
-
-                pil_image = cv2.cvtColor(frame_left, cv2.COLOR_BGR2RGB)
-                pil_image = Image.fromarray(pil_image)
-
-                # save frame
-                pil_image.save(output_frame_path, "PNG")
-
-                # save crop
-                self.crop_and_save_fish(pil_image, (lx0, ly0, lx1, ly1), fish_output_frame_path)
-
         species_df.to_csv(os.path.join(output_directory, "SpeciesBBOXAnnotations-FromMeasurementFile.csv"))
         family_df.to_csv(os.path.join(output_directory, "FamilyBBOXAnnotations-FromMeasurementFile.csv"))
         genus_df.to_csv(os.path.join(output_directory, "GenusBBOXAnnotations-FromMeasurementFile.csv"))
@@ -279,6 +296,183 @@ class Extract:
         species_crop_df.to_csv(os.path.join(output_directory, "SpeciesCropAnnotations-FromMeasurementFile.csv"))
         family_crop_df.to_csv(os.path.join(output_directory, "FamilyCropAnnotations-FromMeasurementFile.csv"))
         genus_crop_df.to_csv(os.path.join(output_directory, "GenusCropAnnotations-FromMeasurementFile.csv"))
+
+    def generate_synthetic_images_from_measurement_data(self,
+                                       video_base_directory,
+                                       em_lengths_file,
+                                       em_image_pt_pair_file,
+                                       output_directory):
+
+        fgbg = cv2.cv2.bgsegm.createBackgroundSubtractorLSBP()
+
+        to_validate_output = os.path.join(output_directory, "ToValidate")
+        validate_mirror_output = os.path.join(output_directory, "ValidateMirror")
+
+        try:
+            # make frames path
+            os.mkdir(to_validate_output)
+            os.mkdir(validate_mirror_output)
+        except OSError:
+            print("Creation of the directory outputs failed.")
+            traceback.print_exc()
+            exit(0)
+
+        df_em_lengths = pandas.read_csv(em_lengths_file, sep='\t', lineterminator='\r')
+        df_em_pt_pair = pandas.read_csv(em_image_pt_pair_file, sep='\t', lineterminator='\r')
+
+        df = pandas.merge(df_em_lengths, df_em_pt_pair, on=['OpCode', 'ImagePtPair'])
+        df["Index"] = pandas.to_numeric(df["Index"])
+        df["FrameLeft"] = pandas.to_numeric(df["FrameLeft"])
+        df["FrameRight"] = pandas.to_numeric(df["FrameRight"])
+
+        op_codes = df.OpCode.unique()
+        point_pairs = df.ImagePtPair.unique()
+
+        species_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
+        genus_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
+        family_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
+
+        species_crop_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
+        genus_crop_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
+        family_crop_df = pandas.DataFrame(columns=['filename', 'x0', 'y0', 'x1', 'y1', 'label'])
+
+        left_videos = df.FilenameLeft.unique()
+        right_videos = df.FilenameRight.unique()
+
+        left_videos = [x for x in left_videos if str(x) != 'nan']
+        right_videos = [x for x in right_videos if str(x) != 'nan']
+
+        self.check_video_files_exist(video_base_directory, left_videos)
+        self.check_video_files_exist(video_base_directory, right_videos)
+
+        count = 0
+        for code in op_codes:
+            for point in point_pairs:
+
+                if df[(df.OpCode == code) & (df.ImagePtPair == point)].shape[0] == 0:
+                    continue
+
+                ######################################## do left frame
+
+                filename_left = df[(df.OpCode == code) & (df.ImagePtPair == point)]["FilenameLeft"].values[0]
+                frame_left = df[(df.OpCode == code) & (df.ImagePtPair == point)]["FrameLeft"].values[0]
+                lx0 = df[(df.OpCode == code) & (df.ImagePtPair == point) & (df.Index == 0)]["Lx"].values[0]
+                ly0 = df[(df.OpCode == code) & (df.ImagePtPair == point) & (df.Index == 0)]["Ly"].values[0]
+                lx1 = df[(df.OpCode == code) & (df.ImagePtPair == point) & (df.Index == 1)]["Lx"].values[0]
+                ly1 = df[(df.OpCode == code) & (df.ImagePtPair == point) & (df.Index == 1)]["Ly"].values[0]
+
+                frame_left = int(frame_left)
+
+                species = df[(df.OpCode == code) & (df.ImagePtPair == point)]["Species"].values[0]
+                genus = df[(df.OpCode == code) & (df.ImagePtPair == point)]["Genus"].values[0]
+                family = df[(df.OpCode == code) & (df.ImagePtPair == point)]["Family"].values[0]
+
+                lx0, ly0, lx1, ly1 = self.find_fish_bounds(lx0, ly0, lx1, ly1)
+
+                if lx0 >= lx1 or ly0 >= ly1:
+                    print("skipping", filename_left, frame_left, lx0, ly0, lx1, ly1, family, genus, species)
+                    continue
+
+                video = os.path.join(video_base_directory, filename_left)
+
+                if not os.path.exists(video):
+                    print("continuing")
+                    continue
+
+                #output_frame_path = os.path.join(frames_output_directory,
+                #                                 filename_left + "." + str(int(frame_left)) + ".png")
+
+                validation_output_frame_path = os.path.join(to_validate_output,
+                                                      filename_left + "." + str(int(frame_left)) + "." + str(
+                                                          int(lx0)) + "." + str(int(ly0)) + "." + str(
+                                                          int(lx1)) + "." + str(int(ly1)) + ".png")
+
+                mirror_output_frame_path = os.path.join(validate_mirror_output,
+                                                            filename_left + "." + str(int(frame_left)) + "." + str(
+                                                                int(lx0)) + "." + str(int(ly0)) + "." + str(
+                                                                int(lx1)) + "." + str(int(ly1)) + ".png")
+
+                cap = cv2.VideoCapture(video)  # video_name is the video being called
+                # amount_of_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                # print(amount_of_frames)
+                cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_left))  # Where frame_no is the frame you want
+                ret, frame_left = cap.read()  # Read the frame
+
+                base = cv2.imread('/Users/mat/Dev/data/bruv/ARP7/ARP_base.png')
+
+                fgmask = fgbg.apply(frame_left)
+                kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,
+                                                   (15,15))
+                fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
+                img = np.zeros(frame_left.shape, np.uint8)
+
+                img = base
+
+                print(fgmask)
+                print(frame_left.shape)
+
+                lx0, lx1, ly0, ly1 = lx0-20, lx1+20, ly0-20, ly1+20
+
+                for x in range(lx0, lx1):
+                    for y in range(ly0, ly1):
+
+                        if fgmask[y][x] != 0:
+                            img[y][x][0] = frame_left[y][x][0]
+                            img[y][x][1] = frame_left[y][x][1]
+                            img[y][x][2] = frame_left[y][x][2]
+
+                        '''
+                        if fgmask[y][x] == 0:
+                            img[y][x][0] = 0
+                            img[y][x][1] = 0
+                            img[y][x][2] = 0
+                        else:
+                            img[y][x][0] = frame_left[y][x][0]
+                            img[y][x][1] = frame_left[y][x][1]
+                            img[y][x][2] = frame_left[y][x][2]
+                        '''
+                        '''
+                        img[y][x][0] = fgmask[y][x] * frame_left[y][x][0]
+                        img[y][x][1] = fgmask[y][x] * frame_left[y][x][1]
+                        img[y][x][2] = fgmask[y][x] * frame_left[y][x][2]
+                        '''
+
+                cv2.imwrite(mirror_output_frame_path, img)
+
+                '''
+                cv2.rectangle(img, (lx0, ly0), (lx1, ly1), (255, 255, 255), 3)
+                img = cv2.resize(img, (800, 600))
+                img2 = cv2.resize(frame_left, (800, 600))
+                cv2.imshow('frame', img)
+                cv2.imshow('frame2', img2)
+                '''
+
+                '''    
+                #img = frame_left * fgmask[:, :, np.newaxis]
+                zero_image = np.zeros(img.shape, np.uint8)
+
+                #zero_image[ly0:ly1 - ly0, lx0:lx1 - lx0] = img[ly0:ly1 - ly0, lx0:lx1 - lx0]
+                #zero_image[300:300, 300:300] = frame_left[300:300, 300:300]
+
+                print(lx0, lx1, ly0, ly1)
+                print(lx0, lx1-lx0, ly0, ly1-ly0)
+
+                width = lx1-lx0
+                height = ly1-ly0
+
+                for x in range(lx0, lx1):
+                    for y in range(ly0, ly1):
+                        zero_image[y][x][0] = img[y][x][0]
+                        zero_image[y][x][1] = img[y][x][1]
+                        zero_image[y][x][2] = img[y][x][2]
+
+                cv2.rectangle(zero_image, (lx0, ly0), (lx1, ly1), (255, 255, 255), 3)
+                zero_image = cv2.resize(zero_image, (800, 600))
+                cv2.imshow('frame', zero_image)
+                '''
+
+                k = cv2.waitKey()
+
 
 class Draw:
     """
