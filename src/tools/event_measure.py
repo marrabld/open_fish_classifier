@@ -11,6 +11,7 @@ import os.path
 import pandas
 import traceback
 from matplotlib import pyplot as plt
+import math
 
 import skimage.measure
 
@@ -21,7 +22,25 @@ class Extract:
     def __init__(self):
         return
 
+    def slope(self, x1, y1, x2, y2):
+        return (y2 - y1) / (x2 - x1)
+
+    def extend_points(self, lx0, ly0, lx1, ly1, l, m):
+        dx = (l / math.sqrt(1 + (m * m)))
+        dy = m * dx
+        new_lx0 = lx0 - dx
+        new_ly0 = ly0 - dy
+        new_lx1 = lx1 + dx
+        new_ly1 = ly1 + dy
+
+        print(lx0, ly0, lx1, ly1)
+        print(new_lx0, new_ly0, new_lx1, new_ly1)
+
+        return new_lx0, new_ly0, new_lx1, new_ly1
+
     def find_fish_bounds(self, lx0, ly0, lx1, ly1):
+
+        lx0, ly0, lx1, ly1 = self.extend_points(lx0, ly0, lx1, ly1, 25, self.slope(lx0, ly0, lx1, ly1))
 
         original_lx0 = lx0
         original_lx1 = lx1
@@ -398,28 +417,36 @@ class Extract:
                 cap.set(cv2.CAP_PROP_POS_FRAMES, int(frame_left))  # Where frame_no is the frame you want
                 ret, frame_left = cap.read()  # Read the frame
 
-                base = cv2.imread('/Users/mat/Dev/data/bruv/ARP7/ARP_base.png')
+                base = cv2.imread('/Users/mat/Dev/data/bruv/ARP7/ARP_base2.png')
 
                 fgmask = fgbg.apply(frame_left)
                 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,
                                                    (15,15))
                 fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
-                img = np.zeros(frame_left.shape, np.uint8)
+                mask_img = np.zeros(frame_left.shape, np.uint8)
 
                 img = base
+                height, width, channels = img.shape
 
-                print(fgmask)
-                print(frame_left.shape)
+                #print(fgmask)
+                #print(frame_left.shape)
 
-                lx0, lx1, ly0, ly1 = lx0-20, lx1+20, ly0-20, ly1+20
+                lx0, lx1, ly0, ly1 = lx0-10, lx1+10, ly0-10, ly1+10
 
                 for x in range(lx0, lx1):
                     for y in range(ly0, ly1):
+
+                        if x >= width or y >= height:
+                            continue
 
                         if fgmask[y][x] != 0:
                             img[y][x][0] = frame_left[y][x][0]
                             img[y][x][1] = frame_left[y][x][1]
                             img[y][x][2] = frame_left[y][x][2]
+
+                            mask_img[y][x][0] = frame_left[y][x][0]
+                            mask_img[y][x][1] = frame_left[y][x][1]
+                            mask_img[y][x][2] = frame_left[y][x][2]
 
                         '''
                         if fgmask[y][x] == 0:
@@ -437,7 +464,11 @@ class Extract:
                         img[y][x][2] = fgmask[y][x] * frame_left[y][x][2]
                         '''
 
+                if ".748" in mirror_output_frame_path:
+                    print(species)
                 cv2.imwrite(mirror_output_frame_path, img)
+                cv2.imwrite(mirror_output_frame_path+"orig.png", frame_left)
+                cv2.imwrite(validation_output_frame_path, mask_img)
 
                 '''
                 cv2.rectangle(img, (lx0, ly0), (lx1, ly1), (255, 255, 255), 3)

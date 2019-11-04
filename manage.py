@@ -77,6 +77,16 @@ def run_crop_event_measure_measurement_boxes(video_base_directory,
                                              em_image_pt_pair_file,
                                              output_directory)
 
+@manager.command
+def run_synthetic_image_generation(video_base_directory,
+                                       em_lengths_file,
+                                       em_image_pt_pair_file,
+                                       output_directory):
+
+    Extract().generate_synthetic_images_from_measurement_data(video_base_directory,
+                                             em_lengths_file,
+                                             em_image_pt_pair_file,
+                                             output_directory)
 
 @manager.command
 def run_rip_and_isolate(video, em_file=None, start_frame=None):
