@@ -40,8 +40,6 @@ class Extract:
 
     def find_fish_bounds(self, lx0, ly0, lx1, ly1):
 
-        lx0, ly0, lx1, ly1 = self.extend_points(lx0, ly0, lx1, ly1, 25, self.slope(lx0, ly0, lx1, ly1))
-
         original_lx0 = lx0
         original_lx1 = lx1
         original_ly0 = ly0
@@ -52,6 +50,9 @@ class Extract:
         lx1 = original_lx0 if original_lx0 > original_lx1 else original_lx1
         ly0 = original_ly0 if original_ly0 < original_ly1 else original_ly1
         ly1 = original_ly0 if original_ly0 > original_ly1 else original_ly1
+
+        lx0, ly0, lx1, ly1 = self.extend_points(lx0, ly0, lx1, ly1, 25, self.slope(lx0, ly0, lx1, ly1))
+
         midy = ly0 + ((ly1 - ly0) / 2)
         diffy = ly1 - ly0
 
