@@ -171,7 +171,12 @@ class Extract:
                 genus = df[(df.OpCode == code) & (df.ImagePtPair == point)]["Genus"].values[0]
                 family = df[(df.OpCode == code) & (df.ImagePtPair == point)]["Family"].values[0]
 
-                lx0, ly0, lx1, ly1 = self.find_fish_bounds(lx0, ly0, lx1, ly1)
+                try:
+                    lx0, ly0, lx1, ly1 = self.find_fish_bounds(lx0, ly0, lx1, ly1)
+                except:
+                    print("Had problem with", filename_left, frame_left)
+                    traceback.print_exc()
+                    continue
 
                 if lx0 >= lx1 or ly0 >= ly1:
                     print("skipping", filename_left, frame_left, lx0, ly0, lx1, ly1, family, genus, species)
@@ -248,7 +253,12 @@ class Extract:
                 genus = df[(df.OpCode == code) & (df.ImagePtPair == point)]["Genus"].values[0]
                 family = df[(df.OpCode == code) & (df.ImagePtPair == point)]["Family"].values[0]
 
-                lx0, ly0, lx1, ly1 = self.find_fish_bounds(lx0, ly0, lx1, ly1)
+                try:
+                    lx0, ly0, lx1, ly1 = self.find_fish_bounds(lx0, ly0, lx1, ly1)
+                except:
+                    print("Had problem with", filename_left, frame_left)
+                    traceback.print_exc()
+                    continue
 
                 if lx0 >= lx1 or ly0 >= ly1:
                     print("skipping", filename_left, frame_left, lx0, ly0, lx1, ly1, family, genus, species)
