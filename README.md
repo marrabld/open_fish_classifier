@@ -3,6 +3,8 @@ contributes: Dan, Mauro and Mat
 
 ![](fish.gif)
 
+## This is a WIP and currently incomplete. 
+
 ## Install Python dependencies
 
 ```bash
