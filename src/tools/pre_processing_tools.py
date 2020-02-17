@@ -46,9 +46,9 @@ class YoloTools():
         h, w, d = im.shape[:3]
         H, W, D = tpl.shape[:3]
 
-        res = cv.matchTemplate(img_gray, tpl, cv.TM_CCOEFF_NORMED) #cv.TM_SQDIFF_NORMED)
+        res = cv.matchTemplate(img_gray, tpl, cv.TM_CCOEFF_NORMED)  # cv.TM_SQDIFF_NORMED)
         log.debug('{} confident we found a match'.format(np.max(res)))
-        #threshold = np.max(res)
+        # threshold = np.max(res)
         loc = np.where(res >= np.float(threshold))
         # loc = np.min(res)#np.where(res >= threshold)
 
@@ -76,8 +76,8 @@ class YoloTools():
             if normalised_coords:
                 print((pt[0] + w) / 2.0 / W)
 
-                #return (pt[0] + w) / 2.0 / W, (pt[1] + h) / 2.0 / H, np.float(w) / W, np.float(h) / H
-                return (pt[0] + (0.5 * w) )  / W, (pt[1] + (0.5 * h)) / H, np.float(w) / W, np.float(h) / H
+                # return (pt[0] + w) / 2.0 / W, (pt[1] + h) / 2.0 / H, np.float(w) / W, np.float(h) / H
+                return (pt[0] + (0.5 * w)) / W, (pt[1] + (0.5 * h)) / H, np.float(w) / W, np.float(h) / H
 
             return pt[0] + w / 2, pt[1] + h / 2, w, h
 
@@ -133,9 +133,12 @@ class YoloTools():
                 k += 1
                 iter_num = k
 
-                log.debug('Itter {} :: template {} :: fish {} :: Trying to find {} in {}'.format(iter_num, jj, ii, _image, _template))
+                log.debug(
+                    'Itter {} :: template {} :: fish {} :: Trying to find {} in {}'.format(iter_num, jj, ii, _image,
+                                                                                           _template))
                 try:
-                    x, y, w, h = self.template_match(_image, _template, normalised_coords=normalised_coords, draw_images=False,
+                    x, y, w, h = self.template_match(_image, _template, normalised_coords=normalised_coords,
+                                                     draw_images=False,
                                                      draw_box=False, image_num=ii, threshold=threshold)
                     label_file = os.path.split(_template)[1].split('.')[0] + '.txt'
                     label_file = os.path.join(label_dir, label_file)
@@ -147,7 +150,7 @@ class YoloTools():
                     # This might results in errors if we find false positives.
                     # templates.pop(jj)
                     # images.pop(ii)
-                    #break
+                    # break
                 except:
                     log.debug('image {} not found in {}'.format(_image, _template))
 
@@ -217,7 +220,8 @@ class YoloTools():
         :return:
         """
 
-        file_list = [file_list for file_list in os.listdir(label_dir) if os.path.isfile(os.path.join(label_dir, file_list))]
+        file_list = [file_list for file_list in os.listdir(label_dir) if
+                     os.path.isfile(os.path.join(label_dir, file_list))]
         for file in file_list:
             with open(os.path.join(label_dir, file), 'r') as f:
                 coords = f.readlines()
@@ -257,7 +261,6 @@ class YoloTools():
                         fw.write("{} {} {} {} {}".format(cat_number, x / Width, y / Height, w / Width, h / Height))
                         fw.write('\n')
 
-
     def split_training_and_validation(self, label_directory, percentage_split=10):
         """
         Given a directory full of lables.  create two text files that define the text and validation data sets.
@@ -285,7 +288,7 @@ class YoloTools():
 
             if counter == index_test:
                 counter = 1
-                file_test.write(os.path.join(test_directory,  title) + '.jpg' + "\n")
+                file_test.write(os.path.join(test_directory, title) + '.jpg' + "\n")
             else:
                 file_train.write(os.path.join(test_directory, title) + '.jpg' + "\n")
                 counter = counter + 1
