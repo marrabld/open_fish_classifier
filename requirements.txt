@@ -1,3 +1,4 @@
+tensorflow-gpu
 cv2
 numpy
 opencv_contrib_python==3.4.1.15
@@ -10,3 +11,5 @@ skimage==0.0
 opencv-contrib-python
 pandas
 manage.py
+Pillow
+opencv-python
