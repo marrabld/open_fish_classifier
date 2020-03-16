@@ -118,3 +118,6 @@ venv.bak/
 /obj-tracking/
 /.idea/
 /src/tools/14_Geo_224/
+
+# Visual Studio Code
+.vscode/
