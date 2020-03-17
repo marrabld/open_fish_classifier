@@ -105,10 +105,11 @@ def run_rip_and_isolate(video, em_file=None, start_frame=None):
             for row in reader:
                 labels.append(row)
 
-        for item in labels:
-            start_frame = item['Frame']
-            start_frame = int(start_frame) - int(buffer)
-            end_frame = int(start_frame) + int(buffer)  # We don't really need to go past.  ... but just in case
+        frames = { int(label['Frame']) for label in labels }
+
+        for frame in frames:
+            start_frame = frame - buffer
+            end_frame = frame + buffer
 
             print(start_frame)
             print(end_frame)
