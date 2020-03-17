@@ -142,7 +142,7 @@ class YoloTools():
                                                      draw_box=False, image_num=ii, threshold=threshold)
                     label_file = os.path.split(_template)[1].split('.')[0] + '.txt'
                     label_file = os.path.join(label_dir, label_file)
-                    label = image_dir.split('/')[-1]
+                    label = image_dir.split(os.path.sep)[-1]
                     self.generate_yolo_labels(label_file, label, [x, y, w, h])
                     log.debug('x_pos :: {} , y_pos :: {}'.format(x, y))
 

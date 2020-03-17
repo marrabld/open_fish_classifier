@@ -36,6 +36,7 @@ class Motion:
         # Used for dilating the segmented mask and 'fill holes'
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,
                                            self.kernel)  # Play with these numbers to be more or less aggressive
+
         if self.method == 'LSBP':
             fgbg = cv2.cv2.bgsegm.createBackgroundSubtractorLSBP()
         elif self.method == 'MOG':
@@ -126,7 +127,7 @@ class IsolateObjects:
             except:
                 break
 
-            frame = rgb_file.split('/')[-1].split('.')[0]  # Grab file frame from the filename
+            frame = os.path.splitext(os.path.basename(rgb_file))[0] # Grab file frame from the filename
 
             print(frame)
             # frame += 1
