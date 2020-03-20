@@ -17,24 +17,85 @@ def readFrame(video, frame):
     return video.read()
 
 def shapeToBox(shape):
-    x = int(shape['x'])
-    y = int(shape['y'])
-    return (x, y, x + int(shape['width']), y + int(shape['height']))
+    return (int(shape['x']), int(shape['y']), int(shape['width']), int(shape['height']))
 
-def pushTrackerState(output, frame, tracker):
-    for tracked in tracker:
-        _, _, box, color = tracked
-        cv2.rectangle(frame, box[0:2], box[2:4], color, 3)
+def writeTrackerState(writer, frame, current):
+    for state in current:
+        id, _, box, color = state
+        cv2.rectangle(frame, box[0:2], (box[0] + box[2], box[1] + box[3]), color, 3)
+        cv2.putText(frame, str(id), box[0:2], cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
-    output.write(frame)
+    writer.write(frame)
+
+def nextStateMT(frame, current):
+    nextState = []
+
+    for state in current:
+        id, template, lastBox, color = state
+        _, maxVal, _, maxLoc = cv2.minMaxLoc(cv2.matchTemplate(frame, template, cv2.TM_CCORR_NORMED))
+
+        if id == 4:
+            print(maxVal)
+
+        if maxVal >= TEMPLATE_THRESHOLD:
+            nextBox = (maxLoc[0], maxLoc[1], lastBox[2], lastBox[3])
+            nextTemplate = frame[nextBox[1]:nextBox[1]+nextBox[3], nextBox[0]:nextBox[0]+nextBox[2]].copy()
+            nextState.append((id, nextTemplate, nextBox, color))
+
+    return nextState
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Attempt to track bounding boxes through frames')
-    parser.add_argument('input', help='Input JSON file describing bounding boxes and labels for fish')
-    parser.add_argument('--video-directory', help='Directory containing video files referenced in input', required=True)
+    parser.add_argument('video', help='Input video file')
+    parser.add_argument('--regions', help='JSON file containing region information', required=True)
+    parser.add_argument('--start-frame', type=int, help='Video frame that the bounding boxes apply to', required=True)
+    parser.add_argument('--total-frames', type=int, help='Total number of frames to track through', required=False, default=100)
+    parser.add_argument('--output', help='Path to save the resulting clip to', required=True)
 
     # argparse terminates the process if parse_args() encounters an error
     args = parser.parse_args()
+
+    # ensure that the output directory exists
+    outputDir = os.path.dirname(os.path.abspath(args.output))
+    if not os.path.exists(outputDir):
+        os.makedirs(outputDir)
+
+    # load the boxes into memory
+    boxes = None
+
+    with open(args.regions, 'r') as f:
+        regions = json.load(f)
+        boxes = [ shapeToBox(r['shape_attributes']) for r in regions ]
+
+    # load up the video and capture the first frame
+    fnum = args.start_frame
+    video = cv2.VideoCapture(args.video)
+    res, frame = readFrame(video, fnum)
+
+    # initialise the output writer with the same dimensions as the input
+    writer = cv2.VideoWriter(args.output, cv2.VideoWriter_fourcc(*'DIVX'), 15, frame.shape[::-1][1:])
+
+    # initialise the tracker state with the initial box locations and templates
+    state = [ (i, frame[b[1]:b[1]+b[3], b[0]:b[0]+b[2]], b, rrgb()) for i, b in enumerate(boxes) ]
+    writeTrackerState(writer, frame, state)
+
+    # start stepping through the frames
+    for i in (range(args.total_frames)):
+        res, frame = video.read()
+
+        # bail early if unable to read the next frame
+        # TODO: Actual error handling instead of assuming it's because of EOF
+        if not res:
+            break
+
+        # compute the next state from the frame and the current state
+        state = nextStateMT(frame, state)
+        writeTrackerState(writer, frame, state)
+
+    writer.release()
+    video.release()
+    
+"""
     files = None
     videoDirectory = args.video_directory
 
@@ -98,3 +159,4 @@ if __name__ == '__main__':
         writer.release()
         video.release()
         
+"""

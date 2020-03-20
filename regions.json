@@ -1,0 +1,674 @@
+[
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1.5,
+        "y": 72,
+        "width": 207.5,
+        "height": 128
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 128,
+        "y": 165,
+        "width": 305,
+        "height": 103.5
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 0.5,
+        "y": 213,
+        "width": 284.5,
+        "height": 125
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 321.5,
+        "y": 316,
+        "width": 243,
+        "height": 91
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 71.5,
+        "y": 425.5,
+        "width": 332,
+        "height": 104
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1.5,
+        "y": 441,
+        "width": 222.5,
+        "height": 123
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 0,
+        "y": 556.5,
+        "width": 182.5,
+        "height": 120.5
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 393.5,
+        "y": 584,
+        "width": 171.5,
+        "height": 66.5
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 285.5,
+        "y": 697.5,
+        "width": 195.5,
+        "height": 79.5
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 78,
+        "y": 798.5,
+        "width": 210,
+        "height": 70
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 44.5,
+        "y": 901,
+        "width": 151.5,
+        "height": 76.5
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 265,
+        "y": 898,
+        "width": 83.5,
+        "height": 39
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 289,
+        "y": 793,
+        "width": 79.5,
+        "height": 45.5
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 316,
+        "y": 795,
+        "width": 85,
+        "height": 68.5
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 275,
+        "y": 838,
+        "width": 100.5,
+        "height": 49.5
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 403.5,
+        "y": 793.5,
+        "width": 64,
+        "height": 44.5
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 381,
+        "y": 770,
+        "width": 75.5,
+        "height": 36.5
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 427,
+        "y": 756,
+        "width": 90.5,
+        "height": 42.5
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 446.5,
+        "y": 720.5,
+        "width": 314,
+        "height": 149
+      },
+      "region_attributes": {
+        "label": "Lutjanus bohar"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 589.5,
+        "y": 489,
+        "width": 150.5,
+        "height": 75
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 700.5,
+        "y": 395.5,
+        "width": 162.5,
+        "height": 70
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 706.5,
+        "y": 254,
+        "width": 253,
+        "height": 175.5
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1106.5,
+        "y": 0,
+        "width": 230.5,
+        "height": 74.5
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1494.5,
+        "y": 206.5,
+        "width": 255.5,
+        "height": 151
+      },
+      "region_attributes": {
+        "label": "Naso vlamingii"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 876.5,
+        "y": 466,
+        "width": 121,
+        "height": 82
+      },
+      "region_attributes": {
+        "label": "Alepes vari"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1042.5,
+        "y": 400,
+        "width": 82,
+        "height": 64
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 916,
+        "y": 370.5,
+        "width": 440,
+        "height": 257
+      },
+      "region_attributes": {
+        "label": "Lutjanus bohar"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1116.5,
+        "y": 767.5,
+        "width": 448.5,
+        "height": 312.5
+      },
+      "region_attributes": {
+        "label": "Balistoides viridescens"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1816.5,
+        "y": 90.5,
+        "width": 23.5,
+        "height": 31.5
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1833.5,
+        "y": 60,
+        "width": 29.5,
+        "height": 25.5
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 560,
+        "y": 659,
+        "width": 62,
+        "height": 53.5
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 596,
+        "y": 0,
+        "width": 35,
+        "height": 29
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 0,
+        "y": 543,
+        "width": 36,
+        "height": 86
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 273,
+        "y": 840,
+        "width": 59,
+        "height": 37
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 386,
+        "y": 680,
+        "width": 115,
+        "height": 58
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 198,
+        "y": 684,
+        "width": 25,
+        "height": 26
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 802,
+        "y": 613,
+        "width": 21,
+        "height": 39
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 493,
+        "y": 908,
+        "width": 30,
+        "height": 31
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 471,
+        "y": 896,
+        "width": 43,
+        "height": 37
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 826,
+        "y": 721,
+        "width": 77,
+        "height": 44
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1808,
+        "y": 389,
+        "width": 112,
+        "height": 163
+      },
+      "region_attributes": {
+        "label": "Lutjanus bohar"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1486,
+        "y": 293,
+        "width": 26,
+        "height": 31
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1836,
+        "y": 176,
+        "width": 38,
+        "height": 33
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1897,
+        "y": 122,
+        "width": 23,
+        "height": 12
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1775,
+        "y": 224,
+        "width": 20,
+        "height": 20
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1683,
+        "y": 0,
+        "width": 28,
+        "height": 23
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1750,
+        "y": 23,
+        "width": 18,
+        "height": 10
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1794,
+        "y": 201,
+        "width": 20,
+        "height": 11
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1692,
+        "y": 216,
+        "width": 12,
+        "height": 14
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1735,
+        "y": 134,
+        "width": 18,
+        "height": 13
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1786,
+        "y": 254,
+        "width": 22,
+        "height": 35
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1650,
+        "y": 358,
+        "width": 22,
+        "height": 26
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 898,
+        "y": 450,
+        "width": 36,
+        "height": 31
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 1001,
+        "y": 428,
+        "width": 31,
+        "height": 28
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 719,
+        "y": 614,
+        "width": 18,
+        "height": 13
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    },
+    {
+      "shape_attributes": {
+        "name": "rect",
+        "x": 669,
+        "y": 590,
+        "width": 13,
+        "height": 12
+      },
+      "region_attributes": {
+        "label": "Fish"
+      }
+    }
+  ]
