@@ -8,6 +8,7 @@ from argparse import ArgumentParser
 from cv2 import cv2
 
 TEMPLATE_THRESHOLD = 0.6
+MORPH_KERNEL = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10, 10))
 
 def rrgb():
     return (randint(0, 255), randint(0, 255), randint(0, 255))
@@ -27,15 +28,42 @@ def writeTrackerState(writer, frame, current):
 
     writer.write(frame)
 
+def drawPoints(frame, points):
+    print(len(points))
+    for point in points:
+        cv2.circle(frame, (point[0][0], point[0][1]), 4, (255, 0, 0), 2)
+    return frame
+
+def computeBoundingBoxes(mask, minArea=64.0):
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    rectangles = [ cv2.boundingRect(c) for c in contours ]
+
+    # get around a 'bug' or 'feature' of groupRectangles where it removes standalone rectangles
+    # (threshold = 0 is a no-op, but threshold = 1 discards rectangles that don't have any sub-rectangles)
+    # https://stackoverflow.com/questions/21421070/opencv-grouprectangles-getting-grouped-and-ungrouped-rectangles
+    #partitioned, _ = cv2.groupRectangles(rectangles + rectangles, 1, 0.5)
+    return [ r for r in rectangles if (r[2] * r[3]) >= minArea ]
+
+def logBoundingBoxes(writer, grayscale, boxes):
+    color = grayscale # cv2.cvtColor(grayscale, cv2.COLOR_GRAY2BGR)
+    
+    for rect in boxes:
+        cv2.rectangle(color, (int(rect[0]), int(rect[1])), (int(rect[0] + rect[2]), int(rect[1] + rect[3])), (0, 0, 255), 2)
+
+    writer.write(color)
+
+def createMask(image, bgsub, learn):
+    mask = bgsub.apply(image, learn)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, MORPH_KERNEL)
+    mask = cv2.threshold(mask, 1, 255, cv2.THRESH_BINARY)[1]
+    return mask
+
 def nextStateMT(frame, current):
     nextState = []
 
     for state in current:
         id, template, lastBox, color = state
         _, maxVal, _, maxLoc = cv2.minMaxLoc(cv2.matchTemplate(frame, template, cv2.TM_CCORR_NORMED))
-
-        if id == 4:
-            print(maxVal)
 
         if maxVal >= TEMPLATE_THRESHOLD:
             nextBox = (maxLoc[0], maxLoc[1], lastBox[2], lastBox[3])
@@ -49,6 +77,7 @@ if __name__ == '__main__':
     parser.add_argument('video', help='Input video file')
     parser.add_argument('--regions', help='JSON file containing region information', required=True)
     parser.add_argument('--start-frame', type=int, help='Video frame that the bounding boxes apply to', required=True)
+    parser.add_argument('--seed-frame', type=int, help='Video frame that contains mostly background', required=True)
     parser.add_argument('--total-frames', type=int, help='Total number of frames to track through', required=False, default=100)
     parser.add_argument('--output', help='Path to save the resulting clip to', required=True)
 
@@ -67,17 +96,32 @@ if __name__ == '__main__':
         regions = json.load(f)
         boxes = [ shapeToBox(r['shape_attributes']) for r in regions ]
 
-    # load up the video and capture the first frame
-    fnum = args.start_frame
+    # load up the video and seed the background subtraction
     video = cv2.VideoCapture(args.video)
-    res, frame = readFrame(video, fnum)
+    res, seedFrame = readFrame(video, args.seed_frame)
+    bgsub = cv2.createBackgroundSubtractorKNN()
+    bgsub.apply(seedFrame, 1)
 
     # initialise the output writer with the same dimensions as the input
-    writer = cv2.VideoWriter(args.output, cv2.VideoWriter_fourcc(*'DIVX'), 15, frame.shape[::-1][1:])
+    res, frame = readFrame(video, args.start_frame)
+    writer = cv2.VideoWriter(args.output, cv2.VideoWriter_fourcc(*'XVID'), video.get(cv2.CAP_PROP_FPS), frame.shape[::-1][1:])
+    
+    # draw first frame
+    fgmask = createMask(frame, bgsub, -1)
+    boxes = computeBoundingBoxes(fgmask)
+    logBoundingBoxes(writer, frame, boxes)
+    #fgmask = bgsub.apply(frame)
+    #fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, MORPH_KERNEL)
+    #fgmask = cv2.threshold(fgmask, 1, 255, cv2.THRESH_BINARY)[1]
+    #colorCopy = cv2.cvtColor(fgmask, cv2.COLOR_GRAY2BGR)
+    #overlayBoundingBoxes(colorCopy, createMask(frame, bgsub, 0))
+
+    #cv2.imwrite('./mov/sub/%s_%d.png'%(os.path.basename(args.output), args.start_frame), colorCopy)
+
 
     # initialise the tracker state with the initial box locations and templates
     state = [ (i, frame[b[1]:b[1]+b[3], b[0]:b[0]+b[2]], b, rrgb()) for i, b in enumerate(boxes) ]
-    writeTrackerState(writer, frame, state)
+    # writeTrackerState(writer, frame, state)
 
     # start stepping through the frames
     for i in (range(args.total_frames)):
@@ -88,12 +132,29 @@ if __name__ == '__main__':
         if not res:
             break
 
+        fgmask = createMask(frame, bgsub, -1)
+        boxes = computeBoundingBoxes(fgmask)
+        logBoundingBoxes(writer, frame, boxes)
+
+        #fgmask = bgsub.apply(frame, 0)
+        #fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, MORPH_KERNEL)
+        #fgmask = cv2.threshold(fgmask, 1, 255, cv2.THRESH_BINARY)[1]
+        #colorCopy = cv2.cvtColor(fgmask, cv2.COLOR_GRAY2BGR)
+
+        #cv2.imwrite('./mov/sub/%s_%d.png'%(os.path.basename(args.output), args.start_frame + i), colorCopy)
+
+        #overlayBoundingBoxes(colorCopy, fgmask)
+        #writer.write(colorCopy)
+
+        #writer.write(drawPoints(cv2.cvtColor(fgmask, cv2.COLOR_GRAY2BGR), cv2.goodFeaturesToTrack(grayFrame, 100, 0.3, 7, mask=fgmask)))
+
         # compute the next state from the frame and the current state
-        state = nextStateMT(frame, state)
-        writeTrackerState(writer, frame, state)
+        #state = nextStateMT(frame, state)
+        #writeTrackerState(writer, frame, state)
 
     writer.release()
     video.release()
+    cv2.destroyAllWindows()
     
 """
     files = None
