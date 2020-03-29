@@ -1,48 +1,121 @@
+import numpy as np
+
 from random import randint
 from argparse import ArgumentParser
 from cv2 import cv2
 
 TEMPLATE_THRESHOLD = 0.6
+MORPH_KERNEL = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10, 10))
 
 def track(reader, writer, boxes, totalFrames):
-    state = None
+    _, colorFrame = reader.read()
+    frame = cv2.cvtColor(colorFrame, cv2.COLOR_BGR2GRAY)
+
+    trackers = [ Tracker(b, sampleFeatures(frame, b)) for b in boxes ]
+    lastPoints = np.concatenate(tuple([ t.samples for t in trackers if t.samples is not None ]))
+    lastFrame = frame
+
+    # Tweak-able LK parameters
+    lkParams = dict(
+        winSize = (15, 15),
+        maxLevel = 2,
+        criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)
+    )
 
     for _ in range(totalFrames):
-        res, frame = reader.read()
+        res, colorFrame = reader.read()
 
         if not res:
             print('ran out of frames')
             break
 
-        # initialise the state on the first frame
-        if state is None:
-            state = [ (i, frame[b[1]:b[1]+b[3], b[0]:b[0]+b[2]], b, __randrgb()) for i, b in enumerate(boxes) ]
-        else:  
-            # compute the next state from the frame and the current state
-            state = __nextState(frame, state)
-            __writeTrackerState(writer, frame, state)
+        frame = cv2.cvtColor(colorFrame, cv2.COLOR_BGR2GRAY)
 
-def __randrgb():
-    return (randint(0, 255), randint(0, 255), randint(0, 255))
+        points, status, _ = cv2.calcOpticalFlowPyrLK(lastFrame, frame, lastPoints, None, **lkParams)
+        drawPoints(colorFrame, points)
 
-def __writeTrackerState(writer, frame, current):
-    for state in current:
-        id, _, box, color = state
-        cv2.rectangle(frame, box[0:2], (box[0] + box[2], box[1] + box[3]), color, 3)
-        cv2.putText(frame, str(id), box[0:2], cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        pos = 0
+        for tracker in trackers:
+            if tracker.samples is None:
+                continue
 
-    writer.write(frame)
+            ns = len(tracker.samples)
+            tracker.update(frame, points[pos:pos+ns], status[pos:pos+ns])
+            pos += ns
 
-def __nextState(frame, current):
-    nextState = []
+            x, y, w, h = tracker.bounds
+            cv2.rectangle(colorFrame, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-    for state in current:
-        id, template, lastBox, color = state
-        _, maxVal, _, maxLoc = cv2.minMaxLoc(cv2.matchTemplate(frame, template, cv2.TM_CCORR_NORMED))
+        lastPoints = np.concatenate(tuple([ t.samples for t in trackers if t.samples is not None ]))
+        writer.write(colorFrame)
+        
+        lastFrame = frame
 
-        if maxVal >= TEMPLATE_THRESHOLD:
-            nextBox = (maxLoc[0], maxLoc[1], lastBox[2], lastBox[3])
-            nextTemplate = frame[nextBox[1]:nextBox[1]+nextBox[3], nextBox[0]:nextBox[0]+nextBox[2]].copy()
-            nextState.append((id, nextTemplate, nextBox, color))
+class Tracker:
+    def __init__(self, bounds, samples):
+        self.samples = samples
+        self.bounds = bounds
 
-    return nextState
+    def update(self, grayscale, samples, statuses):
+        # compute vectors
+        assert(len(samples) == len(self.samples))
+        vectors = np.subtract(samples, self.samples)
+        average = np.mean(vectors, axis=0)
+
+        x, y, w, h = self.bounds
+        x = int(x + average[0])
+        y = int(y + average[1])
+
+        # clamp values
+        if x < 0:
+            w = w + x
+            x = 0
+        
+        if y < 0:
+            h = h + y
+            y = 0
+
+        self.bounds = (x, y, w, h)
+
+        # If any points are now outside the new bounding box, resample the features
+        # TODO: Add some sort of threshold as the bounding box size never changes
+        # TODO: Worth preserving the in-bounds samples and just resampling the ones that have been lost?
+        if not all(isInRectangle(pt, self.bounds) for pt in samples):
+            self.samples = sampleFeatures(grayscale, self.bounds)
+        else:
+            self.samples = samples
+
+        return self.samples
+
+def drawPoints(frame, points):
+    for point in points:
+        cv2.circle(frame, tuple(point), 4, (0, 0, 255), -1)
+
+def sampleFeatures(grayscale, bounds):
+    x, y, w, h = bounds
+    
+    # Avoid trying to sample tiny boxes at all
+    if w <= 5 or h <= 5:
+        return None 
+
+    # TODO: Make these configurable 
+    featureParams = dict(
+        maxCorners = 10,
+        qualityLevel = 0.02,
+        minDistance = 0.02 * ((w + h) / 2)
+    )
+
+    crop = grayscale[y:y+h, x:x+w]
+    corners = cv2.goodFeaturesToTrack(crop, **featureParams)
+
+    if corners is None:
+        return None
+
+    # Normalise the points back to the parent image
+    return np.array([ [ x + c[0][0], y + c[0][1] ] for c in corners ], dtype=np.float32)
+
+def isInRectangle(point, rectangle):
+    return point[0] >= rectangle[0] \
+        and point[0] < (rectangle[0] + rectangle[2]) \
+        and point[1] >= rectangle[1] \
+        and point[1] < (rectangle[1] + rectangle[3])

@@ -3,7 +3,7 @@ import os
 import re
 
 from cv2 import cv2
-from track.py import track
+from track import track
 
 VIDEO_DIRECTORY = r"E:\Work\data\fish\videos"
 BOUNDING_BOXES = r".\bounding-boxes.json"
@@ -42,9 +42,7 @@ for meta in metadata:
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = video.get(cv2.CAP_PROP_FPS)
 
-    print((width, height, fps))
-
-    outfile = './mov/out/%s_%s.%d.avi'%(os.path.splitext(match['video'])[0], 'template-match', startFrame)
+    outfile = './mov/out/%s_%s.%d.avi'%(os.path.splitext(match['video'])[0], 'optical-flow', startFrame)
     writer = cv2.VideoWriter(outfile, cv2.VideoWriter_fourcc(*'XVID'), int(fps / 4), (width, height))
 
     track(video, writer, boxes, 200)
