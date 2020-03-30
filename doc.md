@@ -61,6 +61,6 @@ Results (0.25x speed)
 * https://gfycat.com/clearcutshamefulgermanshepherd
 * https://gfycat.com/infamousjointhind
 
-These results were taken using the KNN background subtraction method, applying an erosion + dilation morphology (kernel=10x10) to remove background noise. \
+These results were taken using the KNN background subtraction method, applying an erosion + dilation morphology (kernel=10x10) to remove background noise.
 
 While the results are not quite as accurate as we would like just yet (many fish are not detected, or detected in multiple sections), I believe there is still hope that it can be tweaked to improve the accuracy.
