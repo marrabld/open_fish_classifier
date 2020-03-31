@@ -4,7 +4,6 @@
 # based on https://github.com/experiencor/keras-yolo3
 import struct
 import numpy as np
-import tensorflow as tf
 from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import Input
 from tensorflow.keras.layers import BatchNormalization
@@ -178,3 +177,15 @@ class WeightReader:
         self.offset = 0
 
 
+def build_and_save_model(weights='yolov3.weights'):
+    """
+
+    """
+    # define the model
+    model = yolov3_model()
+    # load the model weights
+    weight_reader = WeightReader(weights)
+    # set the model weights into the model
+    weight_reader.load_weights(model)
+    # save the model to file
+    model.save('yolov3_model.h5')
