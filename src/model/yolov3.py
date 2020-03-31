@@ -4,14 +4,15 @@
 # based on https://github.com/experiencor/keras-yolo3
 import struct
 import numpy as np
-from keras.layers import Conv2D
-from keras.layers import Input
-from keras.layers import BatchNormalization
-from keras.layers import LeakyReLU
-from keras.layers import ZeroPadding2D
-from keras.layers import UpSampling2D
-from keras.layers.merge import add, concatenate
-from keras.models import Model
+import tensorflow as tf
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import LeakyReLU
+from tensorflow.keras.layers import ZeroPadding2D
+from tensorflow.keras.layers import UpSampling2D
+from tensorflow.keras.layers import add, concatenate
+from tensorflow.keras.models import Model
 
 
 def _conv_block(inp, convs, skip=True):
@@ -176,11 +177,4 @@ class WeightReader:
     def reset(self):
         self.offset = 0
 
-# # define the model
-# model = make_yolov3_model()
-# # load the model weights
-# weight_reader = WeightReader('yolov3.weights')
-# # set the model weights into the model
-# weight_reader.load_weights(model)
-# # save the model to file
-# model.save('model.h5')
+

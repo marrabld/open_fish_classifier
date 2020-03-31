@@ -24,6 +24,12 @@ mirrored_strategy = tf.distribute.MirroredStrategy()
 with mirrored_strategy.scope():
     model = yolov3.yolov3_model()
 
+    weight_reader = yolov3.WeightReader('yolov3.weights')
+    # set the model weights into the model
+    weight_reader.load_weights(model)
+    # save the model to file
+    model.save('model.h5')
+
     # train_datagen = Generator(join(DATA_DIR, 'train'), BATCH_SIZE=16, shuffle_images=True)
     # val_datagen = Generator(join(DATA_DIR, 'val'), BATCH_SIZE=16, shuffle_images=True)
     #
