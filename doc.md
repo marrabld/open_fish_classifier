@@ -64,3 +64,22 @@ Results (0.25x speed)
 These results were taken using the KNN background subtraction method, applying an erosion + dilation morphology (kernel=10x10) to remove background noise.
 
 While the results are not quite as accurate as we would like just yet (many fish are not detected, or detected in multiple sections), I believe there is still hope that it can be tweaked to improve the accuracy.
+
+## SiamMask
+**commit:** not yet featured
+
+[SiamMask](https://arxiv.org/abs/1812.05050) is a visual object tracker that utilises the combination of Siamese Networks and Binary Segmentation (Masking).
+
+Although SiamMask's default models and configurations were not trained on fish data, the initial attempts at tracking fish in out training videos were promising.
+
+Results (0.25x speed)
+* https://gfycat.com/majesticunripefeline
+
+Out of the box, the [provided demo code](https://github.com/foolwood/SiamMask) for SiamMask only supports tracking of a single region of interest (ROI), whereas we need to be able to track multiple fish across each frame.
+
+We made a naive attempt to modify the demo code to support tracking multiple objects. While it seemed to be working well initially, once we had added tracking to all the available bounding boxes there was a very noticable drop off in accuracy for all the objects being tracked.
+
+Results (0.25x speed)
+* https://gfycat.com/potableunnaturalislandcanary
+
+Notice that the quality of the tracking of the fish from the first example has deteriorated significantly when tracking the rest of the bounding boxes simultaneously. It appears that more time needs to be spent familiarising with the SiamMask internals to correctly update it to support the tracking of multiple objects.
