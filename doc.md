@@ -83,3 +83,23 @@ Results (0.25x speed)
 * https://gfycat.com/potableunnaturalislandcanary
 
 Notice that the quality of the tracking of the fish from the first example has deteriorated significantly when tracking the rest of the bounding boxes simultaneously. It appears that more time needs to be spent familiarising with the SiamMask internals to correctly update it to support the tracking of multiple objects.
+
+## PySOT
+**commit:** https://github.com/declspec/pysot/tree/e40b8ec80de425ba9d5cf953058deb3c3810be67
+
+[PySOT](https://github.com/STVIR/pysot) is a project developed by the SenseTime Video Intelligence Research team (which includes some of the original authors of SiamMask). The project is designed to be a research-enabler, making it easier for researchers to develop new novel machine learning algorithms and models.
+
+The project comes with with a couple pre-built algorithms (SiamRPN + SiamRPN) and a variety of pre-trained models on different datasets. 
+
+With a [few modifications](https://github.com/declspec/pysot/commit/8f58cf986de7f9ae98d970075a9e29718245847a) to the PySOT code-base we were able to get PySOT to work as a naive Multiple Single Object Tracker (MSOT) and tracking our bounding boxes.
+
+Results (siamrpn_r50_l234_dwxcorr, 0.25x speed)
+* https://gfycat.com/vapidfluffyharborporpoise
+* https://gfycat.com/sphericalmalegeese
+* https://gfycat.com/accuratedevotedbeardeddragon
+
+There is a marked improvement in the accuracy of these results when compared to the previous SiamMask attempt. There are still some false-positives and confusion in congested areas of the video where tracked fish are occluded behind one another. 
+
+We believe some of these issues stem from the fact that the currently implementation is functioning as an MSOT, rather than a true MOT. In an MSOT, each tracker runs independently and does not account for other trackers' states when determining the best bounding box and you may end up with multiple trackers tracking the same object. In a true MOT, however, the tracker is aware of all tracked objects and can use this to determine better bounding boxes.
+
+In addition, these results were achieved using pre-trained models from general datasets (VID,YoutubeBB,COCO,ImageNetDet), not specialised in any-way for fish tracking. It would be interesting to attempt training a specific model against a specific fish dataset and seeing how that affects the accuracy of the results.
