@@ -103,3 +103,28 @@ There is a marked improvement in the accuracy of these results when compared to 
 We believe some of these issues stem from the fact that the currently implementation is functioning as an MSOT, rather than a true MOT. In an MSOT, each tracker runs independently and does not account for other trackers' states when determining the best bounding box and you may end up with multiple trackers tracking the same object. In a true MOT, however, the tracker is aware of all tracked objects and can use this to determine better bounding boxes.
 
 In addition, these results were achieved using pre-trained models from general datasets (VID,YoutubeBB,COCO,ImageNetDet), not specialised in any-way for fish tracking. It would be interesting to attempt training a specific model against a specific fish dataset and seeing how that affects the accuracy of the results.
+
+### YOLOv3 (crop dataset)
+**commit:** [879bde88dc098b9f5265e22684f07a29157d56c2](https://github.com/AIMS/open_fish_classifier/commit/879bde88dc098b9f5265e22684f07a29157d56c2)
+
+[YOLO (You Only Look Once)](https://pjreddie.com/darknet/yolo/) is a Real-Time Object Detection system. It bundles together bounding-box prediction and object classification into one image pass; this sounds like the perfect solution to our classification problem. 
+
+Like all neural-networks, YOLO needs a trained model to function. The developers of YOLO have kindly provided a few models that have been trained on some of the most popular public datasets (VOC, COCO, etc.). Unfortunately none of these pretrained datasets consist of fish data, and they certainly haven't been trained to the species-level accuracy we require; we will need to train our own model.
+
+Generating a high-quality training dataset is the most difficult part of training a model. Luckily, AIMS has provided us with a large set of labelled reference images. These images have been split into two categories, "crops" and "frames". The images in the "frame" dataset consist of frames from the BRUVS recordings, with fish annotated with bounding boxes and labelled. The images in the "crop" dataset are cropped out from a frame and consist of only a single labelled fish. 
+
+While the "frames" dataset is richer in detail, the "crop" dataset contains far more samples. For this reason we decided to try training YOLO against the crop dataset and see if we could apply the resulting model against full-frame images.
+
+We utilised [Image AI](https://github.com/OlafenwaMoses/ImageAI) to assist with the model training, applying transfer learning from a pre-trained YOLO model. The training dataset consisted of the two most important (as requested by AIMS) species: Lethrinidae Lethrinus Punctulatus and Lutjanidae Lutjanus Sebae.
+
+The initial results were extremely promising:
+```python
+# results recorded after 20 training epochs 
+# test datasets not seen during training were used
+lethrinidae_lethrinus_punctulatus:  correct % = 98.85, probability % = 99.73
+lutjanidae_lutjanus_sebae:          correct % = 99.13, probability % = 99.92
+```
+
+However, when we tried to apply this model to a standard BRUVS video frame we discovered that the results were underwhelming; the model was unable to correctly detect the species in any of the frames we tested. 
+
+A big reason that YOLO works so well in practice is because it considers the entire image when determining object locations. In training, every input image consisted of a single object occupying the entire area. While this made for a very accurate crop classifier, it meant that full frame images with multiple potential objects had never been encountered. We believe, based on the detection results, that the trained model would always try and label a single object using the entirety of the frame, rather than being able to correctly detect multiple, smaller objects.

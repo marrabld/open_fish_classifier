@@ -1,6 +1,7 @@
 tensorflow-gpu
 numpy
 matplotlib
+imageai
 scikit_image
 scipy
 opencv-contrib-python
