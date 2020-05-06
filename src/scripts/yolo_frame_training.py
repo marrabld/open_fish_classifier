@@ -6,6 +6,7 @@ import sys
 import shutil
 
 from argparse import ArgumentParser, ArgumentTypeError
+from collections import Counter
 from random import shuffle
 
 ANNOTATION_FORMAT = """
@@ -150,6 +151,15 @@ def create_training_dataset(root_dir, name, dataset):
         with open(os.path.join(annotations_dir, os.path.splitext(name)[0] + '.xml'), 'w') as af:
             af.write(gen_annotation(frame_path, size, objects))
 
+def log_dataset_summary(name, frames):
+    label_counts = Counter((label for _, _, objects in frames for label,_ in objects))
+    total_objects = sum((len(objects) for _, _, objects in frames))
+    log('info', '%d frames, with %d objects in "%s" dataset' % (len(frames), total_objects, name))
+    
+    for label, total in sorted(label_counts.items(), reverse=True, key=lambda x: x[1]):
+        log('info', '    %s: %d' % (label, total))
+    
+
 def train_model(root_dir, species, epochs, batch_size, pretrained_path):
     from imageai.Detection.Custom import DetectionModelTrainer
     import tensorflow as tf
@@ -195,6 +205,10 @@ def main(args):
         # This is a bit hacky, but set up another 'train' directory in the test folder 
         # This is to fool ImageAI's "evaluateModel" being opinionated on the directory structure.
         create_training_dataset(os.path.join(root_dir, 'test'), 'train', test)
+
+        log_dataset_summary('train', train)
+        log_dataset_summary('validation', validation)
+        log_dataset_summary('test', test)
 
         log('info', 'training model')
         train_model(root_dir, args.species, args.epochs, args.batch_size, args.pretrained_path)
