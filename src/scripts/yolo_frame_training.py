@@ -225,7 +225,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--frame-directory', required=True, help='Root directory containing all of the frame images')
     parser.add_argument('-m', '--metadata-path', required=True, help='Path to the metadata file describing bounding boxes within frames')
     parser.add_argument('-s', '--species', required=True, action='append', help='Species to train the model on, in "genus_family_species" format (can be specified multiple times)')
-    parser.add_argument('-p', '--pretrained-path', required=False, help='Path to pre-trained YOLO model to apply transfer learning from', default='')
+    parser.add_argument('-p', '--pretrained-path', required=True, help='Path to pre-trained YOLO model to apply transfer learning from')
     parser.add_argument('-f', '--force-overwrite', required=False, action='store_true', help='Force overwrite a previous training run with the same name', default=False)
     parser.add_argument('-b', '--batch-size', required=False, type=int, help='Batch size for model training (default: 4)', default=4)
     parser.add_argument('name', help='Name of the training run, must be unique unless "--force-overwrite" was specified')
