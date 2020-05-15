@@ -121,3 +121,7 @@ venv.bak/
 
 # Visual Studio Code
 .vscode/
+
+# generated directories
+training/
+datasets/
