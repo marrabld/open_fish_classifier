@@ -50,7 +50,7 @@ def train_model(root_dir, species, epochs, batch_size, pretrained_path):
     trainer.trainModel()
         
 def main(args):
-    root_dir = os.path.abspath(os.path.join('training', args.name))
+    root_dir = create_training_env(args.name, args.dataset, args.force_overwrite)
 
     # Sanity check inputs
     if not os.path.isdir(root_dir):
