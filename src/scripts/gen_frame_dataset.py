@@ -79,7 +79,7 @@ def gen_annotation(path, size, objects):
         object_xml = object_xml
     )
 
-def create_dataset_env(name, force):
+def create_dataset_env(name, species, force):
     root_dir = os.path.abspath(os.path.join('datasets', name))
 
     if os.path.exists(root_dir):
@@ -91,6 +91,11 @@ def create_dataset_env(name, force):
         shutil.rmtree(root_dir)
 
     os.makedirs(root_dir)
+
+    # output the species in this dataset to a file for later retrievel
+    with open(os.path.join(root_dir, 'species.list'), 'w') as sf:
+        sf.writelines(species)
+
     return root_dir
 
 def map_species_label(label, target_species, default_species):
@@ -168,7 +173,7 @@ def main(args):
 
     try:
          # Set up the training environment and extract the dataset
-        root_dir = create_dataset_env(args.name, args.force_overwrite)
+        root_dir = create_dataset_env(args.name, args.species, args.force_overwrite)
 
         log('info', 'generating training dataset')
 
