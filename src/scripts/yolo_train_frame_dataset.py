@@ -29,9 +29,9 @@ def create_training_env(name, dataset_name, force):
         shutil.rmtree(root_dir)
 
     os.makedirs(root_dir)
-    os.link(os.path.join(dataset_dir, 'train'), os.path.join(root_dir, 'train'))
-    os.link(os.path.join(dataset_dir, 'validation'), os.path.join(root_dir, 'validation'))
-    os.link(os.path.join(dataset_dir, 'test'), os.path.join(root_dir, 'test'))
+    os.symlink(os.path.join(dataset_dir, 'train'), os.path.join(root_dir, 'train'), target_is_directory=True)
+    os.symlink(os.path.join(dataset_dir, 'validation'), os.path.join(root_dir, 'validation'), target_is_directory=True)
+    os.symlink(os.path.join(dataset_dir, 'test'), os.path.join(root_dir, 'test'), target_is_directory=True)
 
     return root_dir
 

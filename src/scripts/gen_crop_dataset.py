@@ -76,7 +76,7 @@ def main(args):
     return 0
 
 if __name__ == '__main__':
-    parser = ArgumentParser('crop_partitioner', description='Utility script for partitioning crops into train/validate/test structures according to family/genus/species')
+    parser = ArgumentParser('gen_crop_dataset', description='Utility script for partitioning crops into train/validate/test structures according to family/genus/species')
     parser.add_argument('--metadata', help='path to metadata file in CSV format', required=True)
     parser.add_argument('--input', help='input directory containing crop images', required=True)
     parser.add_argument('--output', help='root directory to output the partitioned crops to', required=True)

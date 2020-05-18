@@ -143,7 +143,7 @@ def create_training_partition(root_dir, name, partition):
 
     for frame_path, size, objects in partition:
         name = os.path.basename(frame_path)
-        os.link(frame_path, os.path.join(images_dir, name))
+        os.symlink(frame_path, os.path.join(images_dir, name))
 
         with open(os.path.join(annotations_dir, os.path.splitext(name)[0] + '.xml'), 'w') as af:
             af.write(gen_annotation(frame_path, size, objects))
@@ -198,7 +198,7 @@ def main(args):
     return 0
    
 if __name__ == '__main__':
-    parser = ArgumentParser('yolo_frame_training', 'Use an AIMS-provided metadata file to generate an ImageAI+YOLOv3 training dataset')
+    parser = ArgumentParser('gen_frame_dataset', 'Use an AIMS-provided metadata file to generate an ImageAI training dataset')
     parser.add_argument('-w', '--weights', required=True, type=weights, help='Slash-delimited set of percentage weights to divide the crops in for train/validate/test')
     parser.add_argument('-d', '--frame-directory', required=True, help='Root directory containing all of the frame images')
     parser.add_argument('-m', '--metadata-path', required=True, help='Path to the metadata file describing bounding boxes within frames')

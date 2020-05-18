@@ -60,7 +60,7 @@ def process_images(species, image_dir, output_dir):
                     with open(annotation_path, 'w') as af:
                         af.write(gen_annotation(species, image_path, img.shape[1], img.shape[0]))
 
-                    os.link(entry.path, image_path)
+                    os.symlink(entry.path, image_path)
                     
 def make_output_dirs(root):
     for dirname in DATA_DIRECTORIES:
