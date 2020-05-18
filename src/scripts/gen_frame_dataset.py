@@ -94,7 +94,7 @@ def create_dataset_env(name, species, force):
 
     # output the species in this dataset to a file for later retrievel
     with open(os.path.join(root_dir, 'species.list'), 'w') as sf:
-        sf.writelines(species)
+        sf.write('\n'.join(species))
 
     return root_dir
 
