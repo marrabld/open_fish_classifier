@@ -39,8 +39,6 @@ ANNOTATION_OBJECT_FORMAT = """
 </object>
 """
 
-DEFAULT_SPECIES = 'fish'
-
 def weights(raw):
     parts = raw.split('/')
 
@@ -98,17 +96,19 @@ def create_dataset_env(name, species, force):
 
     return root_dir
 
-def map_species_label(label, target_species, default_species):
+def map_species_label(label, target_species):
     search = re.sub(r'\s+', '_', label).lower()
-    return next((species for species in target_species if species.lower().endswith(search)), default_species)
+    return next((species for species in target_species if species.lower().endswith(search)), None)
 
-def extract_objects(regions, target_species, default_species):
+def extract_objects(regions, target_species):
     for region in regions:
         if 'label' in region['region_attributes']:
             shape = region['shape_attributes']
             points = [ shape['x'], shape['y'], shape['x'] + shape['width'], shape['y'] + shape['height'] ]
-            label = map_species_label(region['region_attributes']['label'], target_species, default_species)
-            yield (label, points)
+            label = map_species_label(region['region_attributes']['label'], target_species)
+
+            if label is not None:
+                yield (label, points)
 
 def extract_frame_data(frame_dir, metadata_path, species):
     metadata = None
@@ -118,16 +118,14 @@ def extract_frame_data(frame_dir, metadata_path, species):
         metadata = content['_via_img_metadata']
 
     for _, meta in metadata.items():
-        objects = list(extract_objects(meta['regions'], species, DEFAULT_SPECIES))
+        objects = list(extract_objects(meta['regions'], species))
+        frame_path = os.path.join(frame_dir, meta['filename'])
+        img = cv2.imread(frame_path)
 
-        if len(objects) > 0:
-            frame_path = os.path.join(frame_dir, meta['filename'])
-            img = cv2.imread(frame_path)
-
-            if img is None:
-                log('warning', 'unable to open file "%s"' % frame_path)
-            else:
-                yield (frame_path, (img.shape[1], img.shape[0]), objects)
+        if img is None:
+            log('warning', 'unable to open file "%s"' % frame_path)
+        else:
+            yield (frame_path, (img.shape[1], img.shape[0]), objects)
 
 def partition_frames(frames, weights):
     shuffle(frames)

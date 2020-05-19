@@ -7,8 +7,6 @@ import shutil
 
 from argparse import ArgumentParser
 
-DEFAULT_SPECIES = 'fish'
-
 def log(level, message):
     output = sys.stderr if level == 'error' else sys.stdout
     output.write('%s: %s\n' % (level, message))
@@ -65,7 +63,7 @@ def main(args):
         return 1
 
     log('info', 'training model')
-    train_model(root_dir, [*species, DEFAULT_SPECIES], args.epochs, args.batch_size, args.pretrained_path)
+    train_model(root_dir, species, args.epochs, args.batch_size, args.pretrained_path)
 
     return 0
    
