@@ -46,9 +46,11 @@ def main(args):
     if not tf.test.is_gpu_available:
         print('warning: GPU support not available, evaluating on CPU')
 
+    data_dir = root_dir if args.use_training_dataset else os.path.join(root_dir, 'test')
+
     trainer = DetectionModelTrainer()
     trainer.setModelTypeAsYOLOv3()
-    trainer.setDataDirectory(data_directory=os.path.join(root_dir, 'test'))
+    trainer.setDataDirectory(data_directory=data_dir)
 
     for model_path in model_paths:
         trainer.evaluateModel(
@@ -67,6 +69,7 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--nms-threshold', required=False, type=float, help='Non-maximum suppression threshold to use during evaluation', default=0.5)
     parser.add_argument('-s', '--start-epoch', required=False, type=int, help='A specific epoch to evaluate the model for', default=None)
     parser.add_argument('-t', '--total-epochs', required=False, type=int, help='Total epochs to evaluate (only used when --start-epoch is specified)', default=1)
+    parser.add_argument('--use-training-dataset', required=False, action='store_true', help='Run the evaluation against the train/validation datasets instead of the test dataset', default=False)
     parser.add_argument('name', help='Name of the training run to evaluate')
 
     args = parser.parse_args()
