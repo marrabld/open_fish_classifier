@@ -21,7 +21,7 @@ def detect(video_path, detector, stride):
             print('warning: ran out of frames prematurely')
             break
 
-        print('info: processed up to frame %d' % frame_index)
+        print('info: processed up to frame %d' % frame_number)
 
         _, detected_objects = detector.detectObjectsFromImage(
             input_image=frame,
@@ -45,8 +45,8 @@ def main(args):
     detector.setJsonPath(args.config_path)
     detector.loadModel()
 
+    os.makedirs(os.path.dirname(os.path.abspath(args.output_path)), exist_ok=True)
     frames = detect(args.video_path, detector, args.stride)
-    os.makedirs(os.path.dirname(args.output_path))
 
     with open(args.output_path, 'wb') as of:
         pickle.dump(frames, of)
