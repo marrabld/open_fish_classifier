@@ -1,13 +1,14 @@
 import os
-import cv2
 import json
 import re
 import sys
 import shutil
+import imagesize
 
 from argparse import ArgumentParser, ArgumentTypeError
 from collections import Counter
 from random import shuffle
+from errno import ENOENT
 
 ANNOTATION_FORMAT = """
 <annotation>
@@ -110,6 +111,14 @@ def extract_objects(regions, target_species):
             if label is not None:
                 yield (label, points)
 
+def get_image_size(path):
+    try:
+        return imagesize.get(path)
+    except (OSError, IOError) as e:
+        if getattr(e, 'errno', 0) != ENOENT:
+            raise
+        return None
+
 def extract_frame_data(frame_dir, metadata_path, species):
     metadata = None
 
@@ -120,12 +129,12 @@ def extract_frame_data(frame_dir, metadata_path, species):
     for _, meta in metadata.items():
         objects = list(extract_objects(meta['regions'], species))
         frame_path = os.path.join(frame_dir, meta['filename'])
-        img = cv2.imread(frame_path)
+        size = get_image_size(frame_path)
 
-        if img is None:
+        if size is None:
             log('warning', 'unable to open file "%s"' % frame_path)
         else:
-            yield (frame_path, (img.shape[1], img.shape[0]), objects)
+            yield (frame_path, size, objects)
 
 def partition_frames(frames, weights):
     shuffle(frames)

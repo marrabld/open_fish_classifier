@@ -8,3 +8,4 @@ opencv-contrib-python
 pandas
 manage.py
 Pillow
+imagesize
