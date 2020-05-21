@@ -76,17 +76,20 @@ python yolo_evaluate_training.py \
 ```
 
 ### `gen_detections.py`
-This script generates object detection data against a video using a trained model. This detection data is structured as an array and output in python's native [`pickle`](https://docs.python.org/3/library/pickle.html) format. The array structure is as follows:
+This script generates object detection data against a video using a trained model. This detection data is structured as a tuple of two parallel arrays and output in python's native [`pickle`](https://docs.python.org/3/library/pickle.html) format. The output structure is as follows:
 
 ```
-[
+(
+  [ frame_number, ... repeat for each sampled frame in the video ],
+  [
     [
         [ frame_number, label, confidence, x1, y1, x2, y2 ],
         [ frame_number, label, confidence, x1, y1, x2, y2 ],
         ... repeat for each detection in the frame 
     ]
     ... repeat for each sampled frame in the video
-]
+  ]
+)
 ```
 
 Sampling every frame in the video can be quite slow; a `stride` can be specified which allows you to sample only some of the frames.
