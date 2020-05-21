@@ -125,3 +125,11 @@ venv.bak/
 # generated directories
 training/
 datasets/
+
+*.out
+*.err
+*.pid
+*.pickle
+*.pkl
+*.h5
+
