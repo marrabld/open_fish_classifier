@@ -7,7 +7,8 @@ from argparse import ArgumentParser
 def detect(video_path, detector, stride):
     video = cv2.VideoCapture(video_path)
     total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT)) // stride
-    frames = [ None ] * total_frames
+    frame_numbers = [ None ] * total_frames
+    frame_detections = [ None ] * total_frames
 
     for frame_index in range(total_frames):
         frame_number = frame_index * stride
@@ -32,9 +33,10 @@ def detect(video_path, detector, stride):
             display_object_name=False
         )
 
-        frames[frame_index] = [ [ frame_number, o['name'], o['percentage_probability'] / 100, *o['box_points'] ] for o in detected_objects ]
+        frame_numbers[frame_index] = frame_number
+        frame_detections[frame_index] = [ (o['name'], o['percentage_probability'] / 100, *o['box_points']) for o in detected_objects ]
 
-    return frames
+    return frame_numbers, frame_detections
 
 def main(args):
     from imageai.Detection.Custom import CustomObjectDetection
