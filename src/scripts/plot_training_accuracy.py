@@ -1,7 +1,8 @@
 import pylab
 import numpy as np
 
-TRAIN_FILE = "/home/marrabld/data/yolo/model_jason_12/eval-top-two-70-15-15-b4.out"
+# TRAIN_FILE = "/home/marrabld/data/yolo/model_jason_12/eval-top-two-70-15-15-b4.out"
+TRAIN_FILE = "/home/marrabld/data/yolo/model_eval_home/0.9-eval-home-rerun.out"
 # TRAIN_FILE = "/home/marrabld/data/yolo/model_eval_12fish/training_results.txt"
 # TRAIN_FILE = "/home/marrabld/data/yolo/model_eval_top_twelve/eval-top-twelve-training.out"
 dict_list = []

@@ -3,8 +3,9 @@ import numpy as np
 from scipy.signal import savgol_filter
 import pylab
 
-MAXN_FILE = '/home/marrabld/data/open_fish_classifier/maxn/annotations.pickle'
-THRESHOLD = 0.9
+# MAXN_FILE = '/home/marrabld/data/open_fish_classifier/maxn/annotations.pickle'
+MAXN_FILE = '/home/marrabld/data/ozfish/videos/masn_sebae/A000053_L_60s_slice.pickle'
+THRESHOLD = 0.95
 AIMS_MAXN = 2
 
 file = open(MAXN_FILE, 'rb')
@@ -15,31 +16,29 @@ seb_list = []
 punct_list = []
 frame_list = []
 frame_num = 0
+label_dict = {}
+fish_count = {}
+fish_labels = []
 
-for item in maxn:
-    frame_num += 1
-    seb_count = 0
-    punct_count = 0
+for item in maxn[1]:
+    for label in item:
+       fish_labels.append(label[0])
+
+fish_labels = set(fish_labels)
+for label in fish_labels:
+    fish_count[label] = np.zeros(len(maxn[0]))
+
+for ii, item in enumerate(maxn[1]):
+    frame_num = maxn[0][ii]
+
     total_count.append(len(item))
     for fish in item:
-        if 'lutjanidae_lutjanus_sebae' in fish[0] and fish[1] >= THRESHOLD:
-            seb_count += 1
-        elif 'lethrinidae_lethrinus_punctulatus' in fish[0] and fish[1] >= THRESHOLD:
-            punct_count += 1
+        if fish[1] >= THRESHOLD:
+            fish_count[fish[0]][ii] += 1
 
-    seb_list.append(seb_count)
-    frame_list.append(frame_num)
-    punct_list.append(punct_count)
+for item in fish_labels:
+    pylab.plot(maxn[0], fish_count[item], '--', label=f'MaxN {item}')
 
-pylab.plot(frame_list, total_count, label='Total Fish Detected', alpha=0.25)
-#punct_list = savgol_filter(np.asarray(punct_list), 51, 2)
-pylab.plot(frame_list, punct_list, '--', label='lethrinidae_lethrinus_punctulatus', alpha=0.6)
-#seb_list = savgol_filter(np.asarray(seb_list), 51, 2)
-pylab.plot(frame_list, seb_list, '--', label='lutjanidae_lutjanus_sebae', alpha=0.6)
-
-pylab.plot(41838, AIMS_MAXN, '*', c='r')
-pylab.plot([0, len(frame_list)], [2, 2], '--', c='r', label=f'MaxN {AIMS_MAXN}')
-pylab.ylim([0, 25])
 pylab.xlabel('Frame #')
 pylab.ylabel('Count')
 pylab.legend()

@@ -39,6 +39,10 @@ def create_training_env(name, dataset_name, force):
     return root_dir, species
 
 def train_model(root_dir, species, epochs, batch_size, pretrained_path):
+    # tmp = species[0].split(',')
+    # tmp.append(species[1])
+    # species = tmp
+    # print('DAN!!!!', species)
     from imageai.Detection.Custom import DetectionModelTrainer
     import tensorflow as tf
 
