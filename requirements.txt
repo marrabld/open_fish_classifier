@@ -9,3 +9,4 @@ pandas
 manage.py
 Pillow
 imagesize
+imageai
