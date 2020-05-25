@@ -10,6 +10,8 @@ from collections import Counter
 from random import shuffle
 from errno import ENOENT
 
+CATCH_ALL_SPECIES = 'fish'
+
 ANNOTATION_FORMAT = """
 <annotation>
     <folder>{folder}</folder>
@@ -39,6 +41,13 @@ ANNOTATION_OBJECT_FORMAT = """
     </bndbox>
 </object>
 """
+
+class FriendlyError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
 
 def weights(raw):
     parts = raw.split('/')
@@ -83,7 +92,7 @@ def create_dataset_env(name, species, force):
 
     if os.path.exists(root_dir):
         if not force:
-            raise ValueError('a "%s" training env already exists, choose a unique name or specify the "force" option' % name)
+            raise FriendlyError('a "%s" training env already exists, choose a unique name or specify the "force" option' % name)
 
         # remove the old training data
         log('warning', 'overwriting previous "%s" training env' % name)
@@ -97,20 +106,6 @@ def create_dataset_env(name, species, force):
 
     return root_dir
 
-def map_species_label(label, target_species):
-    search = re.sub(r'\s+', '_', label).lower()
-    return next((species for species in target_species if species.lower().endswith(search)), None)
-
-def extract_objects(regions, target_species):
-    for region in regions:
-        if 'label' in region['region_attributes']:
-            shape = region['shape_attributes']
-            points = [ shape['x'], shape['y'], shape['x'] + shape['width'], shape['y'] + shape['height'] ]
-            label = map_species_label(region['region_attributes']['label'], target_species)
-
-            if label is not None:
-                yield (label, points)
-
 def get_image_size(path):
     try:
         return imagesize.get(path)
@@ -119,22 +114,41 @@ def get_image_size(path):
             raise
         return None
 
-def extract_frame_data(frame_dir, metadata_path, species):
+def extract_frame_data(frame_dir, metadata_path, target_species, catch_all_species):
     metadata = None
 
     with open(metadata_path, 'r') as mf:
         content = json.load(mf)
         metadata = content['_via_img_metadata']
 
-    for _, meta in metadata.items():
-        objects = list(extract_objects(meta['regions'], species))
+    for meta in metadata.values():
         frame_path = os.path.join(frame_dir, meta['filename'])
         size = get_image_size(frame_path)
 
         if size is None:
             log('warning', 'unable to open file "%s"' % frame_path)
-        else:
-            yield (frame_path, size, objects)
+            continue
+
+        objects = []
+
+        for region in meta['regions']:
+            # Skip any regions that have no label in their attributes
+            # TODO: Why are these even in the dataset?
+            if 'label' not in region['region_attributes']:
+                continue
+
+            shape = region['shape_attributes']
+            points = [ shape['x'], shape['y'], shape['x'] + shape['width'], shape['y'] + shape['height'] ]
+
+            # the species labelling in the metadata won't match precisely with the input
+            # target species labels so try and map them together here
+            search = re.sub(r'\s+', '_', region['region_attributes']['label']).lower()
+            species = next((s for s in target_species if s.lower().endswith(search)), catch_all_species)
+
+            if species is not None:
+                objects.append((species, points))
+        
+        yield (frame_path, size, objects)
 
 def partition_frames(frames, weights):
     shuffle(frames)
@@ -179,12 +193,21 @@ def main(args):
         return 1
 
     try:
+        target_species = [ s.lower() for s in args.species ]
+        catch_all_species = CATCH_ALL_SPECIES if args.enable_catch_all else None
+
+        if catch_all_species:
+            if catch_all_species in target_species:
+                raise FriendlyError('catch-all species (%s) is included in target species list')
+
+            target_species.append(CATCH_ALL_SPECIES)
+
          # Set up the training environment and extract the dataset
-        root_dir = create_dataset_env(args.name, args.species, args.force_overwrite)
+        root_dir = create_dataset_env(args.name, target_species, args.force_overwrite)
 
         log('info', 'generating training dataset')
 
-        frames = list(extract_frame_data(args.frame_directory, args.metadata_path, args.species))
+        frames = list(extract_frame_data(args.frame_directory, args.metadata_path, target_species, catch_all_species))
         
         if len(frames) < 3:
             log('error', 'not enough frame data; minimum 3 frames required, got %d' % len(frames))
@@ -203,7 +226,7 @@ def main(args):
         log_partition_summary('train', train)
         log_partition_summary('validation', validation)
         log_partition_summary('test', test)
-    except ValueError as err:
+    except FriendlyError as err:
         log('error', err)
         return 1
     
@@ -216,6 +239,7 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--metadata-path', required=True, help='Path to the metadata file describing bounding boxes within frames')
     parser.add_argument('-s', '--species', required=True, action='append', help='Species to train the model on, in "genus_family_species" format (can be specified multiple times)')
     parser.add_argument('-f', '--force-overwrite', required=False, action='store_true', help='Force overwrite a previous dataset with the same name', default=False)
+    parser.add_argument('--enable-catch-all', required=False, action='store_true', help='Toggle if a catch all "fish" label should be used for species not in the species list. Without this flag, annotations for species not in the target species are omitted')
     parser.add_argument('name', help='Name of the dataset, must be unique unless "--force-overwrite" was specified')
 
     args = parser.parse_args()
