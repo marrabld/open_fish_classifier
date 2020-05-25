@@ -63,7 +63,7 @@ def iou(box_a, box_b):
 def select_prediction(truth_box, predictions, threshold):
     ious = np.array([ iou(truth_box, (p.xmin, p.ymin, p.xmax, p.ymax)) for p in predictions ])
     top = np.argmax(ious)
-    return predictions[top] if ious[top] >= 0.6 else None
+    return predictions[top] if ious[top] >= threshold else None
 
 def select_label(prediction, labels):
     ranked = np.argsort(prediction.classes)
