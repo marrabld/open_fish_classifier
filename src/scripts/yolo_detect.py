@@ -28,7 +28,7 @@ def main(args):
                                                     display_percentage_probability=True,
                                                     minimum_percentage_probability=args.probability)
                     print(f'Detections :: {len(detections)} in {output_image_path}')
-                    # Path(f'{output_image_path}.' + str(len(detections)) + '.out').touch()
+                    Path(f'{output_image_path}.' + str(len(detections)) + '.out').touch()
 
 
 if __name__ == '__main__':
