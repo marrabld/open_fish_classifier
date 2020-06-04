@@ -202,6 +202,10 @@ def main(args):
 
             target_species.append(CATCH_ALL_SPECIES)
 
+        if len(target_species) == 0:
+            print('error: must specify at least one target species, or enable the catch-all species')
+            return 1
+
          # Set up the training environment and extract the dataset
         root_dir = create_dataset_env(args.name, target_species, args.force_overwrite)
 
@@ -237,7 +241,7 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--weights', required=True, type=weights, help='Slash-delimited set of percentage weights to divide the crops in for train/validate/test')
     parser.add_argument('-d', '--frame-directory', required=True, help='Root directory containing all of the frame images')
     parser.add_argument('-m', '--metadata-path', required=True, help='Path to the metadata file describing bounding boxes within frames')
-    parser.add_argument('-s', '--species', required=True, action='append', help='Species to train the model on, in "genus_family_species" format (can be specified multiple times)')
+    parser.add_argument('-s', '--species', required=False, action='append', help='Species to train the model on, in "genus_family_species" format (can be specified multiple times)', default=[])
     parser.add_argument('-f', '--force-overwrite', required=False, action='store_true', help='Force overwrite a previous dataset with the same name', default=False)
     parser.add_argument('--enable-catch-all', required=False, action='store_true', help='Toggle if a catch all "fish" label should be used for species not in the species list. Without this flag, annotations for species not in the target species are omitted')
     parser.add_argument('name', help='Name of the dataset, must be unique unless "--force-overwrite" was specified')
