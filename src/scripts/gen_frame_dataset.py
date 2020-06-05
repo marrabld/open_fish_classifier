@@ -169,10 +169,11 @@ def create_training_partition(root_dir, name, partition):
 
     for frame_path, size, objects in partition:
         name = os.path.basename(frame_path)
-        os.symlink(frame_path, os.path.join(images_dir, name))
+        symlink_path = os.path.join(images_dir, name)
+        os.symlink(frame_path, symlink_path)
 
         with open(os.path.join(annotations_dir, os.path.splitext(name)[0] + '.xml'), 'w') as af:
-            af.write(gen_annotation(frame_path, size, objects))
+            af.write(gen_annotation(symlink_path, size, objects))
 
 def log_partition_summary(name, frames):
     label_counts = Counter((label for _, _, objects in frames for label,_ in objects))
